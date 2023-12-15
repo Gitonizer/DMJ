@@ -13,9 +13,21 @@ public class DamageController : MonoBehaviour
 
     public float CurrentHealth { get { return _currentHealth; } }
 
+    private float _maxHealth;
+
+    private void OnEnable()
+    {
+        EventManager.OnHeal += OnHeal;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnHeal -= OnHeal;
+    }
+
     public void Initialize(CharacterStats characterStats)
     {
-        _currentHealth = characterStats.Health;
+        _maxHealth = _currentHealth = characterStats.Health;
         _resistance = characterStats.Resistance;
         _weakness = characterStats.Weakness;
     }
@@ -37,6 +49,11 @@ public class DamageController : MonoBehaviour
                 break;
         }
         _currentHealth -= value;
+    }
+    public void OnHeal(float value)
+    {
+        _currentHealth += value;
+        _currentHealth = Mathf.Clamp(_currentHealth, 0, _maxHealth);
     }
 
     private float CalculateDamage(float value, Element element)

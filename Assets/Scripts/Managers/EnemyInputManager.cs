@@ -10,6 +10,8 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     private float _sideMovement;
     private bool _jumped;
     private bool _attacked;
+    private bool _interacted;
+    private bool _inventoryPressed;
     private Vector3 _turn;
 
     private const float ATTACK_DISTANCE = 10f;
@@ -20,6 +22,9 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     public float SideMovement { get { return _sideMovement; } }
     public bool Jumped { get { return _jumped; } }
     public bool Attacked { get { return _attacked; } }
+    public bool Interacted { get { return false; } set { _interacted = value; } }
+    public bool PressedInventoryButton { get; set; }
+    public bool EnableMouseLook { get { return false; } set { _inventoryPressed = value; } }
 
     public Vector2 HorizontalMovement { get { return new Vector2(_sideMovement, _forwardMovement); } }
 
@@ -30,7 +35,6 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
         PlayerTransform = playerTransform;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha1))

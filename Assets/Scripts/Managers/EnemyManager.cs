@@ -29,7 +29,7 @@ public class EnemyManager : MonoBehaviour
     {
         _enemies.Remove(deadEnemy);
 
-        SpawnEnemies();
+        Invoke(nameof(SpawnEnemies), 4);
 
         _deathCount++;
     }
@@ -38,14 +38,6 @@ public class EnemyManager : MonoBehaviour
     {
         //do something here later for multiple spawns
         Vector3 randomPosition = new Vector3(Random.Range(-40, 40), 1f, Random.Range(-40, 40));
-
-        foreach (var enemy in _enemies)
-        {
-            if (Vector3.Distance(randomPosition, enemy.transform.position) < 5)
-            {
-                SpawnEnemies();
-            }
-        }
 
         SpawnEnemy(randomPosition);
     }

@@ -9,6 +9,10 @@ public interface IInputManager
     public bool Jumped { get; }
     public bool Attacked { get; }
 
+    public bool Interacted { get; set; }
+    public bool PressedInventoryButton { get; set; }
+    public bool EnableMouseLook { get; set; }
+
     public Vector2 HorizontalMovement { get; }
 
     public Vector3 MouseLook { get; }

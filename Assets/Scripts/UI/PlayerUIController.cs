@@ -8,6 +8,16 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
     [SerializeField] private Slider _slider;
     [SerializeField] private CanvasGroup _deathScreen;
 
+    private void OnEnable()
+    {
+        EventManager.OnHeal += OnHeal;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnHeal -= OnHeal;
+    }
+
     public void Initialize(float maxHealth)
     {
         _slider.minValue = 0;
@@ -23,6 +33,12 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
     public void OnDeath()
     {
         StartCoroutine(CO_FadeInDeathScren());
+    }
+
+    public void OnHeal(float value)
+    {
+        _slider.value += value;
+        _slider.value = Mathf.Clamp(_slider.value, _slider.minValue, _slider.maxValue);
     }
 
     private IEnumerator CO_FadeInDeathScren()

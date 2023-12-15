@@ -8,6 +8,9 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private float _sideMovement;
     private bool _jumped;
     private bool _attacked;
+    private bool _enableMouseLook;
+    private bool _interacted;
+    private bool _pressedInventoryButton;
     private Vector3 _turn;
 
     private const float CAMERA_SENSITIVITY = 10f;
@@ -20,6 +23,12 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     public bool Jumped { get { return _jumped; } }
     public bool Attacked { get { return _attacked; } }
 
+    public bool Interacted { get { return _interacted; } set { _interacted = value; } }
+
+    public bool PressedInventoryButton { get { return _pressedInventoryButton; } set { _pressedInventoryButton = value; } }
+
+    public bool EnableMouseLook { get { return _enableMouseLook; } set { _enableMouseLook = value; } }
+
     public Vector2 HorizontalMovement { get { return new Vector2(_sideMovement, _forwardMovement); } }
 
     public Vector3 MouseLook { get { return _turn; } }
@@ -27,6 +36,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private void Awake()
     {
         _turn = new Vector3();
+        _enableMouseLook = true;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -34,16 +44,25 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public void Update()
     {
+        _pressedInventoryButton = Input.GetKeyDown(KeyCode.I);
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            _interacted = true;
+        }
+
         _forwardMovement = Input.GetAxisRaw("Vertical");
         _sideMovement = Input.GetAxisRaw("Horizontal");
 
         _jumped = Input.GetButtonDown("Jump");
         _attacked = Input.GetButtonDown("Fire1");
 
-        _turn.x += Input.GetAxis("Mouse X") * CAMERA_SENSITIVITY;
-        _turn.y += Input.GetAxis("Mouse Y") * CAMERA_SENSITIVITY;
+        if (_enableMouseLook)
+        {
+            _turn.x += Input.GetAxis("Mouse X") * CAMERA_SENSITIVITY;
+            _turn.y += Input.GetAxis("Mouse Y") * CAMERA_SENSITIVITY;
 
-        _turn.y = Mathf.Clamp(_turn.y, CAMERA_TURN_MINY, CAMERA_TURN_MAXY);
-
+            _turn.y = Mathf.Clamp(_turn.y, CAMERA_TURN_MINY, CAMERA_TURN_MAXY);
+        }
     }
 }

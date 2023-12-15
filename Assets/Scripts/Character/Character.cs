@@ -7,6 +7,7 @@ public class Character : MonoBehaviour
     [SerializeField] private CharacterStats _characterStats;
     [SerializeField] private PlayerState _playerState;
     [SerializeField] private CharacterType _characterType;
+    [SerializeField] private InventoryManager _inventoryManager;
 
     private IInputManager _inputManager;
     private CharacterController _characterController;
@@ -63,6 +64,11 @@ public class Character : MonoBehaviour
                     _playerState = PlayerState.Attacking;
                     _animationController.CastSpell();
                     _spellController.CastSpell();
+                }
+
+                if (_inputManager.PressedInventoryButton)
+                {
+                    _inventoryManager.OnInventory();
                 }
 
                 if (_inputManager.Jumped)
@@ -129,6 +135,11 @@ public class Character : MonoBehaviour
                 break;
         }
 
+        if (_inputManager != null && _inventoryManager != null)
+        {
+            _inputManager.EnableMouseLook = !_inventoryManager.IsUp;
+        }
+
         _gravity = new Vector3(0f, _gravity.y, 0f);
 
         if (transform.position.y < -150f)
@@ -140,6 +151,27 @@ public class Character : MonoBehaviour
             if (_characterType == CharacterType.Player) _characterUIController.OnDeath();
         }
 
+    }
+
+    private void FixedUpdate()
+    {
+        if (_inventoryManager == null)
+            return;
+
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position + new Vector3(0, 1, 0), transform.TransformDirection(Vector3.forward), out hit, 2f))
+        {
+            if (hit.transform.gameObject.GetComponent<IInteractable>() == null)
+                return;
+
+            IInteractable interactable = hit.transform.gameObject.GetComponent<IInteractable>();
+
+            if (_inputManager.Interacted)
+            {
+                interactable.Interact();
+                _inputManager.Interacted = false;
+            }
+        }
     }
 
     public void OnDamage(float damage, Element element)

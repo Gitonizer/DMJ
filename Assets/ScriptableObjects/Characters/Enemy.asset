@@ -15,5 +15,5 @@ MonoBehaviour:
   Health: 500
   Mana: 200
   ManaRegenRate: 5
-  Resistance: 0
-  Weakness: 1
+  Resistance: 1
+  Weakness: 2
