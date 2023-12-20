@@ -137,7 +137,7 @@ public class Character : MonoBehaviour
 
         if (_inputManager != null && _inventoryManager != null)
         {
-            _inputManager.EnableMouseLook = !_inventoryManager.IsUp;
+            _inputManager.EnableInteractions = !_inventoryManager.IsUp;
         }
 
         _gravity = new Vector3(0f, _gravity.y, 0f);

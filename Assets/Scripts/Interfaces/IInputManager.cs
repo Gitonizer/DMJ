@@ -11,7 +11,7 @@ public interface IInputManager
 
     public bool Interacted { get; set; }
     public bool PressedInventoryButton { get; set; }
-    public bool EnableMouseLook { get; set; }
+    public bool EnableInteractions { get; set; }
 
     public Vector2 HorizontalMovement { get; }
 

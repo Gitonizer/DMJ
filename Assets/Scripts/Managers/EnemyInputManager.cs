@@ -24,7 +24,7 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     public bool Attacked { get { return _attacked; } }
     public bool Interacted { get { return false; } set { _interacted = value; } }
     public bool PressedInventoryButton { get; set; }
-    public bool EnableMouseLook { get { return false; } set { _inventoryPressed = value; } }
+    public bool EnableInteractions { get { return false; } set { _inventoryPressed = value; } }
 
     public Vector2 HorizontalMovement { get { return new Vector2(_sideMovement, _forwardMovement); } }
 

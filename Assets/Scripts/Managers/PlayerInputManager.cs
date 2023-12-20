@@ -8,7 +8,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private float _sideMovement;
     private bool _jumped;
     private bool _attacked;
-    private bool _enableMouseLook;
+    private bool _enableInteractions;
     private bool _interacted;
     private bool _pressedInventoryButton;
     private Vector3 _turn;
@@ -27,7 +27,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public bool PressedInventoryButton { get { return _pressedInventoryButton; } set { _pressedInventoryButton = value; } }
 
-    public bool EnableMouseLook { get { return _enableMouseLook; } set { _enableMouseLook = value; } }
+    public bool EnableInteractions { get { return _enableInteractions; } set { _enableInteractions = value; } }
 
     public Vector2 HorizontalMovement { get { return new Vector2(_sideMovement, _forwardMovement); } }
 
@@ -36,7 +36,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private void Awake()
     {
         _turn = new Vector3();
-        _enableMouseLook = true;
+        _enableInteractions = true;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -55,10 +55,10 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
         _sideMovement = Input.GetAxisRaw("Horizontal");
 
         _jumped = Input.GetButtonDown("Jump");
-        _attacked = Input.GetButtonDown("Fire1");
 
-        if (_enableMouseLook)
+        if (_enableInteractions)
         {
+            _attacked = Input.GetButtonDown("Fire1");
             _turn.x += Input.GetAxis("Mouse X") * CAMERA_SENSITIVITY;
             _turn.y += Input.GetAxis("Mouse Y") * CAMERA_SENSITIVITY;
 

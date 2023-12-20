@@ -24,7 +24,7 @@ public class ItemsManager : MonoBehaviour
     private void Start()
     {
         //change this logic when procgen is implemented
-        //SpawnItems();
+        SpawnItems();
     }
 
     private void SpawnItems()
