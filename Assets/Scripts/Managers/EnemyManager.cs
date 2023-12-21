@@ -45,7 +45,7 @@ public class EnemyManager : MonoBehaviour
     private void SpawnEnemy(Vector3 randomPosition)
     {
         Character character = GameObject.Instantiate(_enemyPrefab, transform).GetComponent<Character>();
-        character.GetComponent<EnemyInputManager>().Initialize(Player.transform);
+        character.GetComponent<EnemyInputManager>().Initialize(Player.transform, character.GetComponent<SpellController>().Spells.Count);
         character.GetComponent<SpellController>().Initialize(_projectilesParent);
         character.transform.position = randomPosition;
         _enemies.Add(character);

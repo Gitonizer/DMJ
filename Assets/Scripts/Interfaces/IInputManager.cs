@@ -15,5 +15,7 @@ public interface IInputManager
 
     public Vector2 HorizontalMovement { get; }
 
+    public int SpellIndex { get; }
+
     public Vector3 MouseLook { get; }
 }

@@ -58,6 +58,7 @@ public class Projectile : MonoBehaviour
         if (collision.gameObject.GetComponent<Character>() != null)
         {
             collision.gameObject.GetComponent<Character>().OnDamage(_damage, Element);
+
         }
 
         //maybe spawn particles here later

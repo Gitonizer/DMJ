@@ -5,6 +5,7 @@ using UnityEngine;
 public interface ICharacterUIController
 {
     public void Initialize(float maxHealth);
-    public void OnDamage(float currentHealth);
+    public void OnDamage(DamageInfo damageInfo);
     public void OnDeath();
+    void SelectSpell(SpellScriptable spell);
 }

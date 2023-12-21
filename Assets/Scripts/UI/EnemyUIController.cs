@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class EnemyUIController : MonoBehaviour, ICharacterUIController
 {
     [SerializeField] private Slider _slider;
-
+    [SerializeField] private DamageUIController UIDamagePrefab;
 
     private Camera _camera;
 
@@ -27,10 +27,17 @@ public class EnemyUIController : MonoBehaviour, ICharacterUIController
         _slider.value = maxHealth;
     }
 
-    public void OnDamage(float currentHealth)
+    public void OnDamage(DamageInfo damageInfo)
     {
-        _slider.value = currentHealth;
+        _slider.value -= damageInfo.Value;
+        _slider.value = Mathf.Clamp(_slider.value, _slider.minValue, _slider.maxValue);
+
+        DamageUIController damageUIController = Instantiate(UIDamagePrefab, transform);
+        damageUIController.Initialize(damageInfo.Value, damageInfo.Element, damageInfo.EffectiveNess);
+        damageUIController.transform.rotation = Quaternion.LookRotation(damageUIController.transform.position - Camera.main.transform.position);
     }
 
     public void OnDeath(){}
+
+    public void SelectSpell(SpellScriptable spell) {}
 }

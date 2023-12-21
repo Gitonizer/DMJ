@@ -151,6 +151,9 @@ public class Character : MonoBehaviour
             if (_characterType == CharacterType.Player) _characterUIController.OnDeath();
         }
 
+        _spellController.SelectSpell(_inputManager.SpellIndex - 1);
+        _characterUIController.SelectSpell(_spellController.Spells[_inputManager.SpellIndex - 1]);
+
     }
 
     private void FixedUpdate()
@@ -176,8 +179,8 @@ public class Character : MonoBehaviour
 
     public void OnDamage(float damage, Element element)
     {
-        _damageController.OnDamage(damage, element);
-        _characterUIController.OnDamage(_damageController.CurrentHealth);
+        DamageInfo damageInfo = _damageController.OnDamage(damage, element);
+        _characterUIController.OnDamage(damageInfo);
 
         if (_damageController.CurrentHealth <= 0)
         {

@@ -13,6 +13,8 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     private bool _interacted;
     private bool _inventoryPressed;
     private Vector3 _turn;
+    private int _spellIndex;
+    private int _spellCount;
 
     private const float ATTACK_DISTANCE = 10f;
 
@@ -28,16 +30,20 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
 
     public Vector2 HorizontalMovement { get { return new Vector2(_sideMovement, _forwardMovement); } }
 
+    public int SpellIndex { get { return _spellIndex; } }
+
     public Vector3 MouseLook { get { return _turn; } }
 
-    public void Initialize(Transform playerTransform)
+    public void Initialize(Transform playerTransform, int spellCount)
     {
+        _spellIndex = 1;
+        _spellCount = spellCount;
         PlayerTransform = playerTransform;
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Escape))
             _disableAttacks = !_disableAttacks;
 
         transform.LookAt(PlayerTransform);
@@ -50,6 +56,7 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
         {
             _forwardMovement = 0f;
             _attacked = !_disableAttacks;
+            _spellIndex = Random.Range(1, _spellCount + 1);
         }
     }
 }

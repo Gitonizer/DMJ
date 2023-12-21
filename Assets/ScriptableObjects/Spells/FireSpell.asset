@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acdf142b30396b34fb644fe8e1d214ca, type: 3}
   m_Name: FireSpell
   m_EditorClassIdentifier: 
+  Name: Bola de Fogo
   Projectile: {fileID: 1284525833165441957, guid: c76cb775bb3cf1346892f9556b543b2c, type: 3}
   Element: 0
   Damage: 100

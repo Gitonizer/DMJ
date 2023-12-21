@@ -10,11 +10,11 @@ public class SpellController : MonoBehaviour
 
     private SpellScriptable _currentSpell;
 
-    private int index;
+    private int _index;
 
     private void Awake()
     {
-        index = 0;
+        _index = 0;
         _currentSpell = Spells[0];
     }
 
@@ -30,11 +30,17 @@ public class SpellController : MonoBehaviour
         projectile.transform.SetPositionAndRotation(StartingTransform.position, StartingTransform.rotation);
 
         projectile.Initialize(_currentSpell);
+    }
 
-        index++;
-        if (index >= Spells.Count)
-            index = 0;
+    public void SelectSpell(int index)
+    {
+        if (index >= Spells.Count || index < 0)
+        {
+            Debug.LogError("Spell not assigned to slot number " + index);
+            return;
+        }
 
+        _index = index;
         _currentSpell = Spells[index];
     }
 }

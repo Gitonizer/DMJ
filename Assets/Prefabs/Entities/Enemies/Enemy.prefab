@@ -946,6 +946,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _slider: {fileID: 4547589180461575194}
+  UIDamagePrefab: {fileID: 8084365934510531637, guid: c7c4c5dfa7753d24fa1730125f515170, type: 3}
 --- !u!223 &9151597939166222977
 Canvas:
   m_ObjectHideFlags: 0
@@ -4062,6 +4063,7 @@ MonoBehaviour:
   _characterStats: {fileID: 11400000, guid: 67d541f41117d14409b233edeee66e00, type: 2}
   _playerState: 0
   _characterType: 1
+  _inventoryManager: {fileID: 0}
   _gravity: {x: 0, y: 0, z: 0}
   _playerSpeed: 10
   _jumpSpeed: 2.54

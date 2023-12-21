@@ -12,6 +12,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private bool _interacted;
     private bool _pressedInventoryButton;
     private Vector3 _turn;
+    private int _spellIndex;
 
     private const float CAMERA_SENSITIVITY = 10f;
 
@@ -31,12 +32,15 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public Vector2 HorizontalMovement { get { return new Vector2(_sideMovement, _forwardMovement); } }
 
+    public int SpellIndex { get { return _spellIndex; } }
+
     public Vector3 MouseLook { get { return _turn; } }
 
     private void Awake()
     {
         _turn = new Vector3();
         _enableInteractions = true;
+        _spellIndex = 1;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -44,6 +48,14 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public void Update()
     {
+        for (int number = 1; number <= 9; number++) // read all 9 numbers and assign pressed ones to spellIndex
+        {
+            if (Input.GetKeyDown(number.ToString()))
+            {
+                _spellIndex = number;
+            }
+        }
+
         _pressedInventoryButton = Input.GetKeyDown(KeyCode.I);
 
         if (Input.GetKeyDown(KeyCode.E))

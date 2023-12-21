@@ -5,6 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Spell", menuName = "ScriptableObjects/Spells")]
 public class SpellScriptable : ScriptableObject
 {
+    public string Name;
     public Projectile Projectile;
     public Element Element;
     public float Damage;

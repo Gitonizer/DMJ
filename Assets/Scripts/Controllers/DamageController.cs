@@ -32,23 +32,11 @@ public class DamageController : MonoBehaviour
         _weakness = characterStats.Weakness;
     }
 
-    public void OnDamage(float value, Element element)
+    public DamageInfo OnDamage(float value, Element element)
     {
-        switch (element)
-        {
-            case Element.Fire:
-                CalculateDamage(value, element);
-                break;
-            case Element.Ice:
-                CalculateDamage(value, element);
-                break;
-            case Element.Wind:
-                CalculateDamage(value, element);
-                break;
-            default:
-                break;
-        }
-        _currentHealth -= value;
+        DamageInfo damageInfo = CalculateDamage(value, element);
+        _currentHealth -= damageInfo.Value;
+        return damageInfo;
     }
     public void OnHeal(float value)
     {
@@ -56,19 +44,19 @@ public class DamageController : MonoBehaviour
         _currentHealth = Mathf.Clamp(_currentHealth, 0, _maxHealth);
     }
 
-    private float CalculateDamage(float value, Element element)
+    private DamageInfo CalculateDamage(float value, Element element)
     {
         if (_resistance == element)
         {
             value *= RESISTANCE_FACTOR;
-            return value;
+            return new DamageInfo(value, element, TypeEffectiveness.Resistance);
         }
         if (_weakness == element)
         {
             value *= WEAKNESS_FACTOR;
-            return value;
+            return new DamageInfo(value, element, TypeEffectiveness.Weakness);
         }
 
-        return value;
+        return new DamageInfo(value, element, TypeEffectiveness.Neutral);
     }
 }
