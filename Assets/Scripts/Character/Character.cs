@@ -31,6 +31,8 @@ public class Character : MonoBehaviour
 
     private const float FALL_FACTOR = 8f;
 
+    private bool _isInitialized;
+
     public CharacterType CharacterType { get { return _characterType; } }
 
     private void Awake()
@@ -43,6 +45,7 @@ public class Character : MonoBehaviour
         _inputManager = GetComponent<IInputManager>();
         _damageController = GetComponent<DamageController>();
         _characterUIController = GetComponentInChildren<ICharacterUIController>();
+        _isInitialized = false;
     }
 
     private void Start()
@@ -82,6 +85,9 @@ public class Character : MonoBehaviour
                     _playerState = PlayerState.Airborne;
                 break;
             case PlayerState.Airborne:
+                if (!_isInitialized)
+                    return;
+
                 _characterController.Move(Movement());
 
                 _gravity += Vector3.up * Time.deltaTime * FALL_FACTOR;
@@ -175,6 +181,17 @@ public class Character : MonoBehaviour
                 _inputManager.Interacted = false;
             }
         }
+    }
+
+    public void Initialize(Vector3 position)
+    {
+        transform.position = position;
+        Invoke(nameof(InitializeMovement), 0.1f);
+    }
+
+    private void InitializeMovement()
+    {
+        _isInitialized = true;
     }
 
     public void OnDamage(float damage, Element element)
