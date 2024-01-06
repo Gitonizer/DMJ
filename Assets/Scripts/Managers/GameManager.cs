@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private EnemyManager _enemyManager;
-    [SerializeField] private Text _score;
 
     private void OnEnable()
     {
@@ -28,14 +27,12 @@ public class GameManager : MonoBehaviour
                 break;
             case CharacterType.Enemy:
                 _enemyManager.HandleDeath(character);
-                _score.text = _enemyManager.DeathCount.ToString();
                 break;
             case CharacterType.NPC:
                 break;
             default:
                 break;
         }
-
     }
     private void OnCharacterDeathAnimationFinished(Character character)
     {

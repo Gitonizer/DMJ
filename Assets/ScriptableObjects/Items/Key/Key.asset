@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2472d2f2a6e475e43ae83652e1260288, type: 3}
+  m_Name: Key
+  m_EditorClassIdentifier: 
+  Name: Chave
+  Description: Uma chave. Abre portas.
+  Item: 4
+  ItemType: 3
+  Value: 0
+  InventoryTexture: {fileID: 2800000, guid: 1ae9bced2c4e60b44b94e5da21fb74f5, type: 3}
+  WorldItem: {fileID: 3123225706932117103, guid: 20ef64e543a48df4ea914da6f0085cf0, type: 3}

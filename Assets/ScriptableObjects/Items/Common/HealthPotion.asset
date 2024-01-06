@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2472d2f2a6e475e43ae83652e1260288, type: 3}
+  m_Name: HealthPotion
+  m_EditorClassIdentifier: 
+  Name: "Po\xE7\xE3o de Vida"
+  Description: Recupera 100 pontos de vida (PV).
+  Item: 2
+  ItemType: 1
+  Value: 100
+  InventoryTexture: {fileID: 2800000, guid: 63aa78ab73eb25647aab1f85b23d349a, type: 3}
+  WorldItem: {fileID: 2688996560151441872, guid: e693c7c07fe00fb4fbc7fe2b3bffdb45, type: 3}

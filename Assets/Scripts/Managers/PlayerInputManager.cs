@@ -13,6 +13,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private bool _pressedInventoryButton;
     private Vector3 _turn;
     private int _spellIndex;
+    private bool _dialogOpen;
 
     private const float CAMERA_SENSITIVITY = 10f;
 
@@ -36,6 +37,18 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public Vector3 MouseLook { get { return _turn; } }
 
+    private void OnEnable()
+    {
+        EventManager.OnOpenDialog += OnOpenDialog;
+        EventManager.OnCloseDialog += OnCloseDialog;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnOpenDialog -= OnOpenDialog;
+        EventManager.OnCloseDialog -= OnCloseDialog;
+    }
+
     private void Awake()
     {
         _turn = new Vector3();
@@ -48,33 +61,69 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public void Update()
     {
-        for (int number = 1; number <= 9; number++) // read all 9 numbers and assign pressed ones to spellIndex
+        if (_dialogOpen)
         {
-            if (Input.GetKeyDown(number.ToString()))
+            if (Input.GetKeyDown(KeyCode.E))
             {
-                _spellIndex = number;
+                EventManager.OnContinueDialog?.Invoke();
             }
         }
-
-        _pressedInventoryButton = Input.GetKeyDown(KeyCode.I);
-
-        if (Input.GetKeyDown(KeyCode.E))
+        else
         {
-            _interacted = true;
+            for (int number = 1; number <= 9; number++) // read all 9 numbers and assign pressed ones to spellIndex
+            {
+                if (Input.GetKeyDown(number.ToString()))
+                {
+                    _spellIndex = number;
+                }
+            }
+
+            _pressedInventoryButton = Input.GetKeyDown(KeyCode.I);
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                _interacted = true;
+            }
+
+            _forwardMovement = Input.GetAxisRaw("Vertical");
+            _sideMovement = Input.GetAxisRaw("Horizontal");
+
+            _jumped = Input.GetButtonDown("Jump");
+
+            if (_enableInteractions)
+            {
+                _attacked = Input.GetButtonDown("Fire1");
+                _turn.x += Input.GetAxis("Mouse X") * CAMERA_SENSITIVITY;
+                _turn.y += Input.GetAxis("Mouse Y") * CAMERA_SENSITIVITY;
+
+                _turn.y = Mathf.Clamp(_turn.y, CAMERA_TURN_MINY, CAMERA_TURN_MAXY);
+            }
         }
+    }
 
-        _forwardMovement = Input.GetAxisRaw("Vertical");
-        _sideMovement = Input.GetAxisRaw("Horizontal");
+    private void EnableMouse(bool enable)
+    {
+        Cursor.lockState = enable ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = enable;
+    }
 
-        _jumped = Input.GetButtonDown("Jump");
+    private void OnOpenDialog(StoryActor actor)
+    {
+        // reset inputs
+        _forwardMovement = 0f;
+        _sideMovement = 0f;
+        _attacked = false;
+        _jumped = false;
 
-        if (_enableInteractions)
-        {
-            _attacked = Input.GetButtonDown("Fire1");
-            _turn.x += Input.GetAxis("Mouse X") * CAMERA_SENSITIVITY;
-            _turn.y += Input.GetAxis("Mouse Y") * CAMERA_SENSITIVITY;
+        //enable mouse
+        EnableMouse(true);
 
-            _turn.y = Mathf.Clamp(_turn.y, CAMERA_TURN_MINY, CAMERA_TURN_MAXY);
-        }
+        //open dialog
+        _dialogOpen = true;
+    }
+    private void OnCloseDialog()
+    {
+        EnableMouse(false);
+        _dialogOpen = false;
     }
 }

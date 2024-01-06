@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,18 +11,30 @@ public class EnemyManager : MonoBehaviour
     [SerializeField] private GameObject _enemyPrefab;
 
     private List<Character> _enemies;
+    private int _totalEnemies;
     [SerializeField] private int _deathCount;
 
     [SerializeField] private Transform _projectilesParent;
 
     public int DeathCount { get { return _deathCount; } }
 
+    public int TotalEnemies { get { return _enemies.Count; } }
+
+    private void OnEnable()
+    {
+        EventManager.OnCharacterDeath += HandleDeath;
+        EventManager.OnEnemiesPlaced += SetEnemyNumber;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnCharacterDeath -= HandleDeath;
+        EventManager.OnEnemiesPlaced -= SetEnemyNumber;
+    }
+
     private void Awake()
     {
         _enemies = new List<Character>();
-
-        SpawnEnemies();
-
         _deathCount = 0;
     }
 
@@ -29,25 +42,29 @@ public class EnemyManager : MonoBehaviour
     {
         _enemies.Remove(deadEnemy);
 
-        Invoke(nameof(SpawnEnemies), 4);
+        //don't respawn enemy for now
+        //Invoke(nameof(SpawnEnemies), 4);
 
         _deathCount++;
     }
 
-    private void SpawnEnemies()
+    public void SpawnEnemy(Vector3 position)
     {
-        //do something here later for multiple spawns
-        Vector3 randomPosition = new Vector3(Random.Range(-40, 40), 1f, Random.Range(-40, 40));
-
-        SpawnEnemy(randomPosition);
-    }
-
-    private void SpawnEnemy(Vector3 randomPosition)
-    {
-        Character character = GameObject.Instantiate(_enemyPrefab, transform).GetComponent<Character>();
+        Character character = GameObject.Instantiate(_enemyPrefab, position, Quaternion.identity, transform).GetComponent<Character>();
         character.GetComponent<EnemyInputManager>().Initialize(Player.transform, character.GetComponent<SpellController>().Spells.Count);
         character.GetComponent<SpellController>().Initialize(_projectilesParent);
-        character.transform.position = randomPosition;
+        character.Initialize(position);
         _enemies.Add(character);
+    }
+
+    public void SetEnemyNumber(int number)
+    {
+        _totalEnemies = number;
+    }
+
+    public IEnumerator QueryEnemyCount(Action<int> callback) // hacky, doesn't work
+    {
+        yield return new WaitForSeconds(3f);
+        callback(transform.childCount);
     }
 }

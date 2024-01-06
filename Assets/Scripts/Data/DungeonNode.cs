@@ -11,7 +11,6 @@ public class DungeonNode
     public int Layer { get { return _layer; } }
     public int NodeArea { get { return (int)((_partitionLimits.z - _partitionLimits.x) * (_partitionLimits.w - _partitionLimits.y)); } }
     public List<DungeonNode> RoomNodes { get { return _roomNodes; } }
-    public bool IsConnected { get { return _isConnected; } }
     public bool HasRoom { get { return _hasRoom; } }
 
     public Vector2 RoomCenter { get { return new Vector2(Mathf.Lerp(RoomLimits.x, RoomLimits.z, 0.5f),
@@ -19,6 +18,7 @@ public class DungeonNode
 
     public int PartitionWith { get { return (int)(_partitionLimits.z - _partitionLimits.x); } }
     public int PartitionHeight { get { return (int)(_partitionLimits.w - _partitionLimits.y); } }
+    public List<RoomConnection> RoomConnections { get { return _roomConnections; } }
 
     private Vector4 _partitionLimits;
     private Vector4 _roomLimits;
@@ -28,7 +28,8 @@ public class DungeonNode
     private int _layer;
     private bool _hasRoom;
 
-    private bool _isConnected;
+    private List<RoomConnection> _roomConnections;
+
 
     public DungeonNode(Vector4 limits, int layer, int number)
     {
@@ -36,8 +37,8 @@ public class DungeonNode
         _childNodes = new List<DungeonNode>();
         _layer = layer;
         _hasRoom = false;
-        _isConnected = false;
         Number = number;
+        _roomConnections = new List<RoomConnection>();
     }
 
     public void SetLimits(int minX, int minY, int maxX, int maxY)
@@ -45,9 +46,9 @@ public class DungeonNode
         _partitionLimits = new Vector4(minX, minY, maxX, maxY);
     }
 
-    public void SetConnected()
+    public void SetConnected(DungeonNode connectedNode, Vector2 coordinates, bool isConnected)
     {
-        _isConnected = true;
+        _roomConnections.Add(new RoomConnection(connectedNode, coordinates, isConnected));
     }
 
     public void AddChildNode(DungeonNode node)

@@ -32,6 +32,7 @@ public class Character : MonoBehaviour
     private const float FALL_FACTOR = 8f;
 
     private bool _isInitialized;
+    private Vector3 _initialPosition;
 
     public CharacterType CharacterType { get { return _characterType; } }
 
@@ -56,6 +57,15 @@ public class Character : MonoBehaviour
 
     private void Update()
     {
+        if (!_isInitialized)
+            return;
+
+        if (transform.position.x == 0 && transform.position.z == 0) //hack :/
+        {
+            transform.position = _initialPosition;
+            return;
+        }
+
         switch (_playerState)
         {
             case PlayerState.Grounded:
@@ -85,9 +95,6 @@ public class Character : MonoBehaviour
                     _playerState = PlayerState.Airborne;
                 break;
             case PlayerState.Airborne:
-                if (!_isInitialized)
-                    return;
-
                 _characterController.Move(Movement());
 
                 _gravity += Vector3.up * Time.deltaTime * FALL_FACTOR;
@@ -157,8 +164,11 @@ public class Character : MonoBehaviour
             if (_characterType == CharacterType.Player) _characterUIController.OnDeath();
         }
 
-        _spellController.SelectSpell(_inputManager.SpellIndex - 1);
-        _characterUIController.SelectSpell(_spellController.Spells[_inputManager.SpellIndex - 1]);
+        if (_spellController)
+        {
+            _spellController.SelectSpell(_inputManager.SpellIndex - 1);
+            _characterUIController.SelectSpell(_spellController.Spells[_inputManager.SpellIndex - 1]);
+        }
 
     }
 
@@ -171,7 +181,7 @@ public class Character : MonoBehaviour
         if (Physics.Raycast(transform.position + new Vector3(0, 1, 0), transform.TransformDirection(Vector3.forward), out hit, 2f))
         {
             if (hit.transform.gameObject.GetComponent<IInteractable>() == null)
-                return;
+                return; 
 
             IInteractable interactable = hit.transform.gameObject.GetComponent<IInteractable>();
 
@@ -181,12 +191,14 @@ public class Character : MonoBehaviour
                 _inputManager.Interacted = false;
             }
         }
+
+        _inputManager.Interacted = false;
     }
 
     public void Initialize(Vector3 position)
     {
-        transform.position = position;
-        Invoke(nameof(InitializeMovement), 0.1f);
+        _initialPosition = position;
+        Invoke(nameof(InitializeMovement), 1f);
     }
 
     private void InitializeMovement()
@@ -196,6 +208,9 @@ public class Character : MonoBehaviour
 
     public void OnDamage(float damage, Element element)
     {
+        if (_characterType == CharacterType.NPC)
+            return;
+
         DamageInfo damageInfo = _damageController.OnDamage(damage, element);
         _characterUIController.OnDamage(damageInfo);
 

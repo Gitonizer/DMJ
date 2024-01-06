@@ -7,6 +7,7 @@ public class UIItem : MonoBehaviour
 {
     public string Name;
     public string Description;
+    public Items Item;
     public ItemType ItemType;
     public int Value;
     public Texture2D InventoryTexture { get; set; }
@@ -32,6 +33,7 @@ public class UIItem : MonoBehaviour
 
         InfoTitle.text = Name = itemData.Name;
         InfoDescription.text = Description = itemData.Description;
+        Item = itemData.Item;
         ItemType = itemData.ItemType;
         Value = itemData.Value;
         InventoryTexture = itemData.InventoryTexture;
@@ -48,6 +50,7 @@ public class UIItem : MonoBehaviour
 
         InfoTitle.text = Name = worldItem.ItemData.Name;
         InfoDescription.text = Description = worldItem.ItemData.Description;
+        Item = worldItem.ItemData.Item;
         ItemType = worldItem.ItemData.ItemType;
         Value = worldItem.ItemData.Value;
         InventoryTexture = worldItem.ItemData.InventoryTexture;
@@ -70,7 +73,9 @@ public class UIItem : MonoBehaviour
         transform.SetAsLastSibling();
         Image.raycastTarget = false;
         transform.position = Input.mousePosition;
-        _lastParent.GetComponent<Cell>().HasItem = false;
+        Cell lastCell = _lastParent.GetComponent<Cell>();
+        lastCell.HasItem = false;
+        lastCell.UnassignItem();
     }
 
     public void OnDrop()
@@ -137,6 +142,16 @@ public class UIItem : MonoBehaviour
     private void ShowUse(bool value)
     {
         if (ItemType != ItemType.Collectible) Use.SetActive(value); // improve this verification later
+
+        switch (ItemType)
+        {
+            case ItemType.Health:
+            case ItemType.Mana:
+                Use.SetActive(value);
+                break;
+            default:
+                break;
+        }
     }
 
     private void OnDestroy()

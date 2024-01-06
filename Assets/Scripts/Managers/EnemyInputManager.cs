@@ -17,6 +17,7 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     private int _spellCount;
 
     private const float ATTACK_DISTANCE = 10f;
+    private const float PURSUE_DISTANCE = 20f;
 
     [SerializeField] private bool _disableAttacks = false;
 
@@ -45,6 +46,9 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     {
         if (Input.GetKeyDown(KeyCode.Escape))
             _disableAttacks = !_disableAttacks;
+
+        if (Vector3.Distance(transform.position, PlayerTransform.position) > PURSUE_DISTANCE)
+            return;
 
         transform.LookAt(PlayerTransform);
 

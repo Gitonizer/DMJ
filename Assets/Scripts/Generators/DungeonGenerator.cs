@@ -29,9 +29,16 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject SouthWestWallPrefab;
     public GameObject SouthEastWallPrefab;
 
+    [Header("Door prefabs")]
+    public GameObject DoorPrefab;
+
     [Header("Character Parents")]
     public GameObject CharacterParent;
     public GameObject EnemyParent;
+    public GameObject NPCParent;
+
+    [Header("Items Parent")]
+    public GameObject ItemsParent;
 
     private DungeonCell[,] _dungeonCells;
     private float _cellSize;
@@ -41,19 +48,43 @@ public class DungeonGenerator : MonoBehaviour
     private List<DungeonNode> _dungeonNodes;
     private List<DungeonNode> _roomNodes;
 
+    private List<DungeonNode> _leftLeafRooms;
+    private List<DungeonNode> _rightLeafRooms;
+
+    private DungeonNode _entranceRoom;
+    private DungeonNode _exitRoom;
+    private DungeonNode _middleRoom;
+
+    private Character _player;
+    private EnemyManager _enemyManager;
+    private NPCManager _npcManager;
+    private ItemsManager _itemsManager;
+
+    private QuestScriptable _quest;
+
     private void Awake()
     {
-        _dungeonCells = new DungeonCell[20, 20];
+        _dungeonCells = new DungeonCell[20, 20]; // this size could be set by Quest
         _cellSize = 16f;
-        _minPartitionArea = 50;
-        _minPartitionSides = new Vector2(4, 4);
+        _minPartitionArea = 60;
+        _minPartitionSides = new Vector2(6, 6);
 
         _dungeonNodes = new List<DungeonNode>();
         _roomNodes = new List<DungeonNode>();
+
+        _leftLeafRooms = new List<DungeonNode>();
+        _rightLeafRooms = new List<DungeonNode>();
+
+        _player = CharacterParent.GetComponentInChildren<Character>();
+        _enemyManager = EnemyParent.GetComponent<EnemyManager>();
+        _npcManager = NPCParent.GetComponent<NPCManager>();
+
+        _itemsManager = ItemsParent.GetComponent<ItemsManager>();
     }
 
-    private void Start()
+    public void Initialize(QuestScriptable quest)
     {
+        _quest = quest;
         InitializeCells(); //create cells on map
         StartCoroutine(GenerateBSP(0)); //instantiate prefabs after deciding all celltypes
     }
@@ -121,7 +152,7 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    private IEnumerator GenerateBSP(int number)
+    private IEnumerator GenerateBSP(int nodeNumber)
     {
         bool createdNewNodes = false;
         List<DungeonNode> tempNodes = new List<DungeonNode>();
@@ -129,7 +160,7 @@ public class DungeonGenerator : MonoBehaviour
         // if 0, create node with map size
         if (_dungeonNodes.Count == 0)
         {
-            _dungeonNodes.Add(new DungeonNode(new Vector4(0, 0, _dungeonCells.GetLength(0), _dungeonCells.GetLength(1)), 0, number));
+            _dungeonNodes.Add(new DungeonNode(new Vector4(0, 0, _dungeonCells.GetLength(0), _dungeonCells.GetLength(1)), 0, nodeNumber));
         }
 
         // check all nodes on the latest layer
@@ -164,13 +195,13 @@ public class DungeonGenerator : MonoBehaviour
                     }
 
                     // create nodes
-                    number++;
+                    nodeNumber++;
                     Vector4 node1limits = new Vector4(node.PartitionLimits.x, node.PartitionLimits.y, node.PartitionLimits.z, randomY);
-                    DungeonNode node1 = new DungeonNode(node1limits, node.Layer + 1, number);
+                    DungeonNode node1 = new DungeonNode(node1limits, node.Layer + 1, nodeNumber);
 
-                    number++;
+                    nodeNumber++;
                     Vector4 node2limits = new Vector4(node.PartitionLimits.x, randomY, node.PartitionLimits.z, node.PartitionLimits.w);
-                    DungeonNode node2 = new DungeonNode(node2limits, node.Layer + 1, number);
+                    DungeonNode node2 = new DungeonNode(node2limits, node.Layer + 1, nodeNumber);
 
                     node.AddChildNode(node1);
                     node.AddChildNode(node2);
@@ -196,13 +227,13 @@ public class DungeonGenerator : MonoBehaviour
                     }
 
                     // create nodes
-                    number++;
+                    nodeNumber++;
                     Vector4 node1limits = new Vector4(node.PartitionLimits.x, node.PartitionLimits.y, randomX, node.PartitionLimits.w);
-                    DungeonNode node1 = new DungeonNode(node1limits, node.Layer + 1, number);
+                    DungeonNode node1 = new DungeonNode(node1limits, node.Layer + 1, nodeNumber);
 
-                    number++;
+                    nodeNumber++;
                     Vector4 node2limits = new Vector4(randomX, node.PartitionLimits.y, node.PartitionLimits.z, node.PartitionLimits.w);
-                    DungeonNode node2 = new DungeonNode(node2limits, node.Layer + 1, number);
+                    DungeonNode node2 = new DungeonNode(node2limits, node.Layer + 1, nodeNumber);
 
                     node.AddChildNode(node1);
                     node.AddChildNode(node2);
@@ -216,18 +247,22 @@ public class DungeonGenerator : MonoBehaviour
         // if no nodes are created, stop recursivity
         if (!createdNewNodes)
         {
-            print("node generation over");
-            GenerateNodeRooms();
+            GenerateNodeRooms(); //validate room sizes later
             GeneratePaths();
             InstantiatePrefabs();
-            InitializeCharacters();
+            SetEntranceAndExitRooms();
+            InstantiateDoors(_quest);
+            yield return StartCoroutine(PlacePlayer());
+            yield return StartCoroutine(PlaceEnemies());
+            yield return StartCoroutine(PlaceNPCs());
+            yield return StartCoroutine(PlaceItems());
             yield break;
         }
 
         _dungeonNodes.AddRange(tempNodes);
 
         // repeat until no node can be cut (recursive)
-        StartCoroutine(GenerateBSP(number));
+        StartCoroutine(GenerateBSP(nodeNumber));
     }
 
     private void GenerateNodeRooms()
@@ -334,6 +369,9 @@ public class DungeonGenerator : MonoBehaviour
             //get closest rooms
             List<DungeonNode> roomPair = GetClosestRooms(leftRoomNodes, rightRoomNodes);
 
+            //Entrance coordinates
+            List<Vector2> entranceCoordinates = new List<Vector2>();
+
             Vector2 vectorbetweenchildren = roomPair[0].RoomCenter - roomPair[1].RoomCenter;
 
             if (Mathf.Abs(vectorbetweenchildren.x) > Mathf.Abs(vectorbetweenchildren.y)) // connect with east/west
@@ -344,6 +382,10 @@ public class DungeonGenerator : MonoBehaviour
                     int maxy = roomPair[0].RoomLimits.w < roomPair[1].RoomLimits.w ? (int)roomPair[0].RoomLimits.w : (int)roomPair[1].RoomLimits.w;
 
                     int randomy = UnityRandom.Range(miny, maxy);
+
+                    entranceCoordinates.Add(new Vector2((int)roomPair[0].RoomLimits.z - 1, randomy));
+                    entranceCoordinates.Add(new Vector2((int)roomPair[1].RoomLimits.x, randomy));
+
                     //room entrances
                     if (_dungeonCells[(int)roomPair[0].RoomLimits.z - 1, randomy].DungeonCellType == DungeonCellType.NorthWestWall)
                     {
@@ -385,6 +427,9 @@ public class DungeonGenerator : MonoBehaviour
                     int maxy = roomPair[0].RoomLimits.w < roomPair[1].RoomLimits.w ? (int)roomPair[0].RoomLimits.w : (int)roomPair[1].RoomLimits.w;
 
                     int randomy = UnityRandom.Range(miny, maxy);
+
+                    entranceCoordinates.Add(new Vector2((int)roomPair[0].RoomLimits.z - 1, randomy));
+                    entranceCoordinates.Add(new Vector2((int)roomPair[1].RoomLimits.x, randomy));
 
                     //room entrances
                     if (_dungeonCells[(int)roomPair[0].RoomLimits.z - 1, randomy].DungeonCellType == DungeonCellType.NorthWestWall)
@@ -431,6 +476,9 @@ public class DungeonGenerator : MonoBehaviour
 
                     int randomx = UnityRandom.Range(minx, maxx);
 
+                    entranceCoordinates.Add(new Vector2(randomx, (int)roomPair[0].RoomLimits.w - 1));
+                    entranceCoordinates.Add(new Vector2(randomx, (int)roomPair[1].RoomLimits.y));
+
                     //room entrances
                     if (_dungeonCells[randomx, (int)roomPair[0].RoomLimits.w - 1].DungeonCellType == DungeonCellType.SouthEastWall)
                     {
@@ -473,6 +521,9 @@ public class DungeonGenerator : MonoBehaviour
 
                     int randomx = UnityRandom.Range(minx, maxx);
 
+                    entranceCoordinates.Add(new Vector2(randomx, (int)roomPair[0].RoomLimits.w - 1));
+                    entranceCoordinates.Add(new Vector2(randomx, (int)roomPair[1].RoomLimits.y));
+
                     //room entrances
                     if (_dungeonCells[randomx, (int)roomPair[0].RoomLimits.w - 1].DungeonCellType == DungeonCellType.SouthEastWall)
                     {
@@ -511,11 +562,97 @@ public class DungeonGenerator : MonoBehaviour
             }
 
             pathnumber++;
-            roomPair[0].SetConnected();
-            roomPair[1].SetConnected();
+
+            roomPair[0].SetConnected(roomPair[1], entranceCoordinates[0],true);
+            roomPair[1].SetConnected(roomPair[0], entranceCoordinates[1], true);
         }
 
         GeneratePath(layer - 1, pathnumber);
+    }
+
+    public void InstantiateDoors(QuestScriptable quest) // use quest data later
+    {
+
+        // generate uninteractable door on entrance room (opposed to room entrance wall)
+        PlaceDoorOnOppositeSide(_entranceRoom, false);
+        // generate interactable door on exit room (random place opposed to room entrance wall)
+        PlaceDoorOnOppositeSide(_exitRoom, true);
+        // generate interactable door on path between the two biggest nodes (hardcorded quest door)
+        PlaceDoor(GetLinkingRoom(_dungeonNodes[0]));
+    }
+
+    private void PlaceDoor(DungeonNode room)
+    {
+        DungeonCell cell = null;
+
+        foreach (var roomConnection in room.RoomConnections)
+        {
+            foreach (var roominroomconnection in roomConnection.ConnectedNode.RoomConnections)
+            {
+                if (roominroomconnection.ConnectedNode == room)
+                    cell = _dungeonCells[(int)roomConnection.Coordinates.x, (int)roomConnection.Coordinates.y];
+            }
+        }
+
+        if (cell == null)
+        {
+            print("not able to find cell to place door");
+            return;
+        }
+
+        Quaternion localRotation = Quaternion.identity;
+
+        //rotate if necessary
+        if (_dungeonCells[(int)cell.GridPosition.x, (int)cell.GridPosition.y - 1].DungeonCellType == DungeonCellType.NorthSouthPath)
+            localRotation = Quaternion.Euler(0, 180, 0);
+        else if (_dungeonCells[(int)cell.GridPosition.x - 1, (int)cell.GridPosition.y].DungeonCellType == DungeonCellType.EastWestPath)
+            localRotation = Quaternion.Euler(0, 270, 0);
+        else if (_dungeonCells[(int)cell.GridPosition.x + 1, (int)cell.GridPosition.y].DungeonCellType == DungeonCellType.EastWestPath)
+            localRotation = Quaternion.Euler(0, 90, 0);
+
+        // instantiate door
+        GameObject door = Instantiate(DoorPrefab, cell.transform);
+        door.transform.rotation = localRotation;
+        door.GetComponentInChildren<Door>().Initialize(true);
+    }
+    private Vector2 PlaceDoorOnOppositeSide(DungeonNode room, bool interactable)
+    {
+        Vector2 entranceDoorCoordinates = room.RoomConnections[0].Coordinates;
+        Quaternion localRotation = Quaternion.identity;
+
+        if (room.RoomConnections[0].Coordinates.x == room.RoomLimits.x) // opposing X
+        {
+            entranceDoorCoordinates.x = room.RoomLimits.z - 1;
+            localRotation = Quaternion.Euler(0, 90, 0);
+        }
+        else if (room.RoomConnections[0].Coordinates.x + 1 == room.RoomLimits.z)
+        {
+            entranceDoorCoordinates.x = room.RoomLimits.x;
+            localRotation = Quaternion.Euler(0, 270, 0);
+        }
+
+        if (room.RoomConnections[0].Coordinates.y == room.RoomLimits.y) // opposing Y
+        {
+            entranceDoorCoordinates.y = room.RoomLimits.w - 1;
+        }
+        else if (room.RoomConnections[0].Coordinates.y + 1 == room.RoomLimits.w)
+        {
+            entranceDoorCoordinates.y = room.RoomLimits.y;
+            localRotation = Quaternion.Euler(0, 180, 0);
+        }
+
+        //determine cell to instantiate door on
+        DungeonCell cell = _dungeonCells[(int)entranceDoorCoordinates.x, (int)entranceDoorCoordinates.y];
+
+        // destroy wall maybe
+        Destroy(cell.transform.GetChild(0).GetChild(0).gameObject);
+
+        // instantiate door
+        GameObject door = Instantiate(DoorPrefab, cell.transform);
+        door.transform.rotation = localRotation;
+        door.GetComponentInChildren<Door>().Initialize(interactable);
+
+        return entranceDoorCoordinates;
     }
 
     private List<DungeonNode> GetNodeChildRooms(DungeonNode node)
@@ -588,44 +725,239 @@ public class DungeonGenerator : MonoBehaviour
         return closestRooms;
     }
 
-    private void InitializeCharacters()
+    private List<DungeonNode> GetFarthestRooms(List<DungeonNode> leftRooms, List<DungeonNode> rightRooms)
     {
-        //pick a node room at random
-        DungeonCell randomCell = null;
-        Vector2 nodeRoom = new Vector2(-1, -1);
-        List<DungeonCell> roomCells = new List<DungeonCell>();
+        float maxDistance = 0;
+        List<DungeonNode> farthestRooms = new List<DungeonNode>();
 
-        while (randomCell == null || randomCell.DungeonCellType != DungeonCellType.Ground)
+        foreach (var leftRoom in leftRooms)
         {
-            nodeRoom.x = UnityRandom.Range(0, _dungeonCells.GetLength(0));
-            nodeRoom.y = UnityRandom.Range(0, _dungeonCells.GetLength(1));
-
-            randomCell = _dungeonCells[(int)nodeRoom.x, (int)nodeRoom.y];
-        }
-
-        foreach (var cell in _dungeonCells)
-        {
-            if (cell.NodeNumber == randomCell.NodeNumber)
+            foreach (var rightRoom in rightRooms)
             {
-                roomCells.Add(cell);
+                if (Vector2.Distance(leftRoom.RoomCenter, rightRoom.RoomCenter) > maxDistance)
+                {
+                    farthestRooms.Clear();
+
+                    maxDistance = Vector2.Distance(leftRoom.RoomCenter, rightRoom.RoomCenter);
+
+                    farthestRooms.Add(leftRoom);
+                    farthestRooms.Add(rightRoom);
+                }
+            }
+        }
+        return farthestRooms;
+    }
+
+    private void SetEntranceAndExitRooms()
+    {
+        //check the two biggest nodes and determine the farthest two rooms between them
+        _leftLeafRooms = GetNodeChildRooms(_dungeonNodes[0].ChildNodes[0]);
+        _rightLeafRooms = GetNodeChildRooms(_dungeonNodes[0].ChildNodes[1]);
+
+        List<DungeonNode> farthestRooms = new List<DungeonNode>(GetFarthestRooms(_leftLeafRooms, _rightLeafRooms));
+
+        foreach (var room in farthestRooms)
+        {
+            if (_leftLeafRooms.Contains(room))
+                _entranceRoom = room;
+            if (_rightLeafRooms.Contains(room))
+                _exitRoom = room;
+        }
+    }
+
+    private DungeonNode GetLinkingRoom(DungeonNode node)
+    {
+        if (node.HasRoom)
+            return null;
+
+        if (node.ChildNodes[0].HasRoom) return node.ChildNodes[0];
+        if (node.ChildNodes[1].HasRoom) return node.ChildNodes[1];
+
+        List<DungeonNode> leafRooms = GetNodeChildRooms(node.ChildNodes[0]);
+
+        foreach (var room in leafRooms)
+        {
+            foreach (var connectedroom in room.RoomConnections)
+            {
+                if (!leafRooms.Contains(connectedroom.ConnectedNode))
+                    return room;
             }
         }
 
-        roomCells.Remove(randomCell);
+        print("no linking room");
+        return null;
+    }
 
-        //get characters
-        Character character = CharacterParent.GetComponentInChildren<Character>();
-        Character[] enemies = EnemyParent.GetComponentsInChildren<Character>();
-
-        //set character initial positions
-        foreach (var enemy in enemies)
+    private IEnumerator GetRandomCellFromRoom(DungeonNode room, Action<DungeonCell> returnCell)
+    {
+        int tries = 0;
+        if (!room.HasRoom)
         {
-            //pick roomcell at random
-            int roomCellIndex = UnityRandom.Range(0, roomCells.Count);
-            enemy.Initialize(new Vector3(roomCells[roomCellIndex].transform.position.x, roomCells[roomCellIndex].transform.position.y + 3f, roomCells[roomCellIndex].transform.position.z));
-            roomCells.Remove(roomCells[roomCellIndex]);
+            Debug.LogError("Make sure the node has a room");
+            yield break;
         }
 
-        character.Initialize(new Vector3(randomCell.transform.position.x, randomCell.transform.position.y + 3f, randomCell.transform.position.z));
+        DungeonCell foundCell = null;
+
+        while (foundCell == null || foundCell.IsOcupied)
+        {
+            int randomX = UnityRandom.Range((int)room.RoomLimits.x, (int)room.RoomLimits.z);
+            int randomY = UnityRandom.Range((int)room.RoomLimits.y, (int)room.RoomLimits.w);
+
+            foundCell = _dungeonCells[randomX, randomY];
+
+            tries++;
+            if (tries > 1000)
+                break;
+
+            yield return null;
+        }
+
+        foundCell.IsOcupied = true;
+        returnCell(tries > 1000 ? null : foundCell);
+    }
+
+    private IEnumerator PlacePlayer()
+    {
+        //after setting entrance and exit rooms, set player on a random tile on entrance room
+        DungeonCell randomCell = null;
+        yield return StartCoroutine(GetRandomCellFromRoom(_entranceRoom, (resultCell) => randomCell = resultCell));
+        yield return null;
+        _player.Initialize(new Vector3(randomCell.transform.position.x, randomCell.transform.position.y + 3f, randomCell.transform.position.z));
+    }
+
+    private IEnumerator PlaceEnemies()
+    {
+        //determine how many rooms will have an enemy
+        int numberToPopulate = UnityRandom.Range(_roomNodes.Count / 2, _roomNodes.Count);
+
+        //find random rooms to populate
+        List<DungeonNode> allRooms = new List<DungeonNode>(_roomNodes);
+        List<DungeonNode> roomsToPopulate = new List<DungeonNode>();
+
+        // don't spawn enemies on entrance room
+        allRooms.Remove(_entranceRoom);
+
+        yield return null;
+
+        for (int i = 0; i < numberToPopulate; i++)
+        {
+            int randomNumber = UnityRandom.Range(0, allRooms.Count);
+            roomsToPopulate.Add(allRooms[randomNumber]);
+            allRooms.RemoveAt(randomNumber);
+        }
+
+        //populate rooms
+        foreach (var room in roomsToPopulate)
+        {
+            DungeonCell cell = null;
+            yield return GetRandomCellFromRoom(room, (resultCell) => cell = resultCell);
+
+            if (cell == null)
+                break;
+
+            Vector3 cellPosition = cell.transform.position;
+            Vector3 enemyPosition = new Vector3(cellPosition.x, cellPosition.y + 3f, cellPosition.z);
+            yield return null;
+            _enemyManager.SpawnEnemy(enemyPosition);
+        }
+
+        // for now, enemy number defines quest requirement
+        // later maybe change to be the other way around
+        foreach (var goal in _quest.ObjectiveGoals)
+        {
+            if (goal.Type == ObjectiveType.Defeat)
+            {
+                StartCoroutine(_enemyManager.QueryEnemyCount((result) => goal.Quantity = result));
+                break;
+            }
+        }
+    }
+
+    private IEnumerator PlaceNPCs()
+    {
+        int requiredNPCs = _quest.RequiredNPCs;
+
+        if (requiredNPCs <= 0)
+            yield break;
+
+        //place NPCs only on rooms that are on the left node of the BSP, starting with entrance room
+        List<DungeonNode> leftNodeRooms = new List<DungeonNode>(_leftLeafRooms);
+
+        DungeonCell randomCell = null;
+        yield return StartCoroutine(GetRandomCellFromRoom(_entranceRoom, (resultCell) => randomCell = resultCell));
+        yield return null;
+        _npcManager.SpawnNPC(new Vector3(randomCell.transform.position.x, randomCell.transform.position.y + 3f, randomCell.transform.position.z));
+        randomCell.IsOcupied = true;
+
+        requiredNPCs--;
+
+        if (requiredNPCs > 0)
+        {
+            leftNodeRooms.Remove(_entranceRoom);
+
+            for (int i = 0; i < requiredNPCs; i++)
+            {
+                //pick random left node room
+                int randomRoom = UnityRandom.Range(0, leftNodeRooms.Count);
+
+                //populate room
+                yield return StartCoroutine(GetRandomCellFromRoom(leftNodeRooms[randomRoom], (resultCell) => randomCell = resultCell));
+                
+                if (randomCell == null)
+                    break;
+
+                yield return null;
+                _npcManager.SpawnNPC(new Vector3(randomCell.transform.position.x, randomCell.transform.position.y + 3f, randomCell.transform.position.z));
+                randomCell.IsOcupied = true;
+
+                //remove room from pool
+                leftNodeRooms.RemoveAt(randomRoom);
+            }
+        }
+    }
+
+    private IEnumerator PlaceItems()
+    {
+        DungeonCell randomCell = null;
+
+        //place quest items outside of entrance room within the left node
+        List<DungeonNode> leftNodeRooms = new List<DungeonNode>(_leftLeafRooms);
+
+        //remove entrance room
+        if (leftNodeRooms.Count > 1)
+            leftNodeRooms.Remove(_entranceRoom);
+
+        foreach (var goal in _quest.ObjectiveGoals)
+        {
+            if (goal.Type == ObjectiveType.Collect)
+            {
+                int randomRoom = UnityRandom.Range(0, leftNodeRooms.Count);
+                yield return StartCoroutine(GetRandomCellFromRoom(leftNodeRooms[randomRoom], (resultCell) => randomCell = resultCell));
+                yield return null;
+                StartCoroutine(_itemsManager.SpawnItem(randomCell.transform.position, goal.Item));
+                randomCell.IsOcupied = true;
+            }
+        }
+
+        //place random items on all rooms
+        int itemsPerRoom = 2;
+
+        if (_roomNodes.Count <= 0)
+        {
+            yield break;
+        }
+
+        foreach (var room in _roomNodes)
+        {
+            for (int i = 0; i < itemsPerRoom; i++)
+            {
+                int randomRoom = UnityRandom.Range(0, _roomNodes.Count);
+                yield return StartCoroutine(GetRandomCellFromRoom(room, (resultCell) => randomCell = resultCell));
+                yield return null;
+                StartCoroutine(_itemsManager.SpawnItem(randomCell.transform.position));
+                randomCell.IsOcupied = true;
+            }
+        }
     }
 }

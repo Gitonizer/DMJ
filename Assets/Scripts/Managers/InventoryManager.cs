@@ -51,7 +51,7 @@ public class InventoryManager : MonoBehaviour
         _isUp = _inventoryCanvas.enabled;
     }
 
-    private void OnClose()
+    public void OnClose()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -110,5 +110,22 @@ public class InventoryManager : MonoBehaviour
         _traderInventory.SetActive(_inventoryCanvas.enabled);
 
         _isUp = _inventoryCanvas.enabled;
+    }
+
+    public bool DeliverItem(Items item)
+    {
+        foreach (var cell in _playerInventoryCells)
+        {
+            if (cell.UIItem != null)
+            {
+                if (cell.UIItem.Item == item)
+                {
+                    Destroy(cell.UIItem.gameObject);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

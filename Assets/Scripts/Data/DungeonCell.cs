@@ -10,11 +10,13 @@ public class DungeonCell : MonoBehaviour
     public int NodeNumber;
     public int PathNumber;
     public Vector2 GridPosition;
+    public bool IsOcupied { get; set; }
 
     private void Start()
     {
         RoomNumber = -1;
         NodeNumber = -1;
         PathNumber = -1;
+        IsOcupied = false;
     }
 }

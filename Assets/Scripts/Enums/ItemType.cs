@@ -2,5 +2,6 @@ public enum ItemType
 {
     Collectible,
     Health,
-    Mana
+    Mana,
+    Key
 }
