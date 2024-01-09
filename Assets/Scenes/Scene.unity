@@ -2348,6 +2348,7 @@ MonoBehaviour:
   EnemyParent: {fileID: 962641896}
   NPCParent: {fileID: 1008939920}
   ItemsParent: {fileID: 888636364}
+  ExitDoor: {fileID: 0}
 --- !u!1 &888636364
 GameObject:
   m_ObjectHideFlags: 0
@@ -4043,8 +4044,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3926a658bb9674428be0e97dc0540e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentLevel: 0
   _enemyManager: {fileID: 962641898}
-  _score: {fileID: 0}
 --- !u!1001 &1280865805402294410
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4226,6 +4227,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2649759040569265775, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3475721006962892853, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_Alpha
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3699952984035316933, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}

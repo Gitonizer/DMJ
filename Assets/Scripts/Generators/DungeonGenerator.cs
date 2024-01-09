@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityRandom = UnityEngine.Random;
 
 public class DungeonGenerator : MonoBehaviour
@@ -39,6 +40,9 @@ public class DungeonGenerator : MonoBehaviour
 
     [Header("Items Parent")]
     public GameObject ItemsParent;
+
+    [Header("Exit Door")]
+    public Door ExitDoor;
 
     private DungeonCell[,] _dungeonCells;
     private float _cellSize;
@@ -247,8 +251,8 @@ public class DungeonGenerator : MonoBehaviour
         // if no nodes are created, stop recursivity
         if (!createdNewNodes)
         {
-            GenerateNodeRooms(); //validate room sizes later
-            GeneratePaths();
+            GenerateNodeRooms(); 
+            GeneratePaths(); // validating generated map here
             InstantiatePrefabs();
             SetEntranceAndExitRooms();
             InstantiateDoors(_quest);
@@ -374,6 +378,8 @@ public class DungeonGenerator : MonoBehaviour
 
             Vector2 vectorbetweenchildren = roomPair[0].RoomCenter - roomPair[1].RoomCenter;
 
+            bool pathSuccess = false;
+
             if (Mathf.Abs(vectorbetweenchildren.x) > Mathf.Abs(vectorbetweenchildren.y)) // connect with east/west
             {
                 if (vectorbetweenchildren.x > 0) // connect with child1 east - child0 west
@@ -416,6 +422,8 @@ public class DungeonGenerator : MonoBehaviour
                     //path
                     for (int x = (int)roomPair[1].RoomLimits.z; x < roomPair[0].RoomLimits.x; x++)
                     {
+                        pathSuccess = true;
+
                         _dungeonCells[x, randomy].DungeonCellType = DungeonCellType.EastWestPath;
                         _dungeonCells[x, randomy].Direction = Direction.Left;
                         _dungeonCells[x, randomy].PathNumber = pathnumber;
@@ -461,6 +469,8 @@ public class DungeonGenerator : MonoBehaviour
                     //path
                     for (int x = (int)roomPair[0].RoomLimits.z; x < roomPair[1].RoomLimits.x; x++)
                     {
+                        pathSuccess = true;
+
                         _dungeonCells[x, randomy].DungeonCellType = DungeonCellType.EastWestPath;
                         _dungeonCells[x, randomy].Direction = Direction.Right;
                         _dungeonCells[x, randomy].PathNumber = pathnumber;
@@ -509,6 +519,8 @@ public class DungeonGenerator : MonoBehaviour
                     //path
                     for (int y = (int)roomPair[1].RoomLimits.w; y < roomPair[0].RoomLimits.y; y++)
                     {
+                        pathSuccess = true;
+
                         _dungeonCells[randomx, y].DungeonCellType = DungeonCellType.NorthSouthPath;
                         _dungeonCells[randomx, y].Direction = Direction.Up;
                         _dungeonCells[randomx, y].PathNumber = pathnumber;
@@ -554,11 +566,20 @@ public class DungeonGenerator : MonoBehaviour
                     //path
                     for (int y = (int)roomPair[0].RoomLimits.w; y < roomPair[1].RoomLimits.y; y++)
                     {
+                        pathSuccess = true;
+
                         _dungeonCells[randomx, y].DungeonCellType = DungeonCellType.NorthSouthPath;
                         _dungeonCells[randomx, y].Direction = Direction.Down;
                         _dungeonCells[randomx, y].PathNumber = pathnumber;
                     }
                 }
+            }
+
+            if (!pathSuccess) // not a valid map, reset generation
+            {
+                print("GENERATION FAILED");
+                Scene scene = SceneManager.GetActiveScene();
+                SceneManager.LoadScene(scene.name);
             }
 
             pathnumber++;
@@ -613,9 +634,9 @@ public class DungeonGenerator : MonoBehaviour
         // instantiate door
         GameObject door = Instantiate(DoorPrefab, cell.transform);
         door.transform.rotation = localRotation;
-        door.GetComponentInChildren<Door>().Initialize(true);
+        door.GetComponentInChildren<Door>().Initialize(true, false);
     }
-    private Vector2 PlaceDoorOnOppositeSide(DungeonNode room, bool interactable)
+    private Vector2 PlaceDoorOnOppositeSide(DungeonNode room, bool isExit)
     {
         Vector2 entranceDoorCoordinates = room.RoomConnections[0].Coordinates;
         Quaternion localRotation = Quaternion.identity;
@@ -650,7 +671,10 @@ public class DungeonGenerator : MonoBehaviour
         // instantiate door
         GameObject door = Instantiate(DoorPrefab, cell.transform);
         door.transform.rotation = localRotation;
-        door.GetComponentInChildren<Door>().Initialize(interactable);
+        door.GetComponentInChildren<Door>().Initialize(false, isExit);
+
+        if (isExit)
+            ExitDoor = door.GetComponentInChildren<Door>();
 
         return entranceDoorCoordinates;
     }
@@ -868,7 +892,12 @@ public class DungeonGenerator : MonoBehaviour
         {
             if (goal.Type == ObjectiveType.Defeat)
             {
-                StartCoroutine(_enemyManager.QueryEnemyCount((result) => goal.Quantity = result));
+                StartCoroutine(_enemyManager.QueryEnemyCount((result) =>
+                {
+                    goal.Quantity = result;
+                    EventManager.OnEnemiesPlaced?.Invoke(result);
+                }));
+
                 break;
             }
         }

@@ -31,6 +31,7 @@ public class StoryManager : MonoBehaviour
         EventManager.OnCloseDialog += OnCloseDialog;
         EventManager.OnContinueDialog += OnContinueDialog;
         EventManager.OnOpenDoor += OnOpenDoor;
+        EventManager.OnCharacterDeath += OnEnemyDeath;
     }
     private void OnDisable()
     {
@@ -38,6 +39,7 @@ public class StoryManager : MonoBehaviour
         EventManager.OnCloseDialog -= OnCloseDialog;
         EventManager.OnContinueDialog -= OnContinueDialog;
         EventManager.OnOpenDoor -= OnOpenDoor;
+        EventManager.OnCharacterDeath -= OnEnemyDeath;
     }
 
     private void Awake()
@@ -89,6 +91,24 @@ public class StoryManager : MonoBehaviour
         }
 
         print("you have no key yet");
+    }
+
+    private void OnEnemyDeath(Character character)
+    {
+        foreach (var goal in _currentQuest.ObjectiveGoals)
+        {
+            if (goal.Type == ObjectiveType.Defeat && !goal.IsDone)
+            {
+                _objectivesUI.UpdateObjective(goal);
+                if (goal.Validate())
+                {
+                    //open door
+                    if (goal.RewardType == RewardType.Door)
+                        _dungeonGenerator.ExitDoor.Open();
+                }
+                return;
+            }
+        }
     }
 
     private void ManageDialog()

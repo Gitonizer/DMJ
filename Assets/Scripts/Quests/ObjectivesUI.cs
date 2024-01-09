@@ -14,12 +14,12 @@ public class ObjectivesUI : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnCharacterDeath += OnCharacterDeath;
+        EventManager.OnEnemiesPlaced += OnEnemyCountSet;
     }
 
     private void OnDisable()
     {
-        EventManager.OnCharacterDeath -= OnCharacterDeath;
+        EventManager.OnEnemiesPlaced -= OnEnemyCountSet;
     }
 
     public void Initialize(QuestScriptable quest)
@@ -35,13 +35,13 @@ public class ObjectivesUI : MonoBehaviour
         }
     }
 
-    private void OnCharacterDeath(Character character)
+    private void OnEnemyCountSet(int count)
     {
         foreach (var objUI in _objectiveUIs)
         {
             if (objUI.Type == ObjectiveType.Defeat)
             {
-                objUI.UpdateObjective();
+                objUI.Quantity.text = "0 / " + count.ToString();
             }
         }
     }
@@ -51,17 +51,6 @@ public class ObjectivesUI : MonoBehaviour
         foreach (var objUI in _objectiveUIs)
         {
             if (goal == objUI.Goal)
-            {
-                objUI.UpdateObjective();
-                return;
-            }
-        }
-    }
-    public void UpdateObjective(ObjectiveType objectiveType)
-    {
-        foreach (var objUI in _objectiveUIs)
-        {
-            if (objUI.Type == objectiveType && !objUI.Goal.IsDone)
             {
                 objUI.UpdateObjective();
                 return;

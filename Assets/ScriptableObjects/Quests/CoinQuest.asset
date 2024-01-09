@@ -18,18 +18,24 @@ MonoBehaviour:
   - Description: Entregar moeda
     Type: 0
     Item: 1
+    CurrentQuantity: 0
     Quantity: 1
     IsDone: 0
+    RewardType: 0
     ItemReward: 4
   - Description: Abrir porta
     Type: 3
     Item: 0
-    Quantity: 2
+    CurrentQuantity: 0
+    Quantity: 1
     IsDone: 0
+    RewardType: 0
     ItemReward: 0
   - Description: Derrotar inimigos
     Type: 2
     Item: 0
-    Quantity: 20
+    CurrentQuantity: 0
+    Quantity: 3
     IsDone: 0
-    ItemReward: 4
+    RewardType: 2
+    ItemReward: 0

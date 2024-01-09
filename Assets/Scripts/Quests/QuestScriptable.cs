@@ -14,6 +14,7 @@ public class QuestScriptable : ScriptableObject
     {
         foreach (var goal in ObjectiveGoals)
         {
+            goal.CurrentQuantity = 0;
             goal.IsDone = false;
         }
     }

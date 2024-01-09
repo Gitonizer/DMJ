@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 {
     [SerializeField] private Slider _slider;
     [SerializeField] private CanvasGroup _deathScreen;
+    [SerializeField] private CanvasGroup _winScreen;
     [SerializeField] private Text _spellText;
     [SerializeField] private Image _spellImage;
     [SerializeField] private DamageUIController UIDamagePrefab;
@@ -14,11 +16,13 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 
     private void OnEnable()
     {
+        EventManager.OnWinScreen += OnWin;
         EventManager.OnHeal += OnHeal;
     }
 
     private void OnDisable()
     {
+        EventManager.OnWinScreen += OnWin;
         EventManager.OnHeal -= OnHeal;
     }
 
@@ -41,7 +45,12 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 
     public void OnDeath()
     {
-        StartCoroutine(CO_FadeInDeathScren());
+        StartCoroutine(CO_FadeInScreen(_deathScreen, () => { }));
+    }
+
+    public void OnWin()
+    {
+        StartCoroutine(CO_FadeInScreen(_winScreen, () => { EventManager.OnExitLevel?.Invoke(); }));
     }
 
     public void OnHeal(float value)
@@ -50,17 +59,19 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
         _slider.value = Mathf.Clamp(_slider.value, _slider.minValue, _slider.maxValue);
     }
 
-    private IEnumerator CO_FadeInDeathScren()
+    private IEnumerator CO_FadeInScreen(CanvasGroup canvasGroup, Action callback)
     {
         float currentTime = 0f;
         float duration = 1f;
 
         while (currentTime < duration)
         {
-            _deathScreen.alpha = Mathf.Lerp(0, 1, currentTime / duration);
+            canvasGroup.alpha = Mathf.Lerp(0, 1, currentTime / duration);
             currentTime += Time.deltaTime;
             yield return null;
         }
+
+        callback();
     }
 
     public void SelectSpell(SpellScriptable spell)

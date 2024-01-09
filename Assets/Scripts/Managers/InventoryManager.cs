@@ -116,10 +116,11 @@ public class InventoryManager : MonoBehaviour
     {
         foreach (var cell in _playerInventoryCells)
         {
-            if (cell.UIItem != null)
+            if (cell.HasItem)
             {
                 if (cell.UIItem.Item == item)
                 {
+                    cell.HasItem = false;
                     Destroy(cell.UIItem.gameObject);
                     return true;
                 }

@@ -6,9 +6,12 @@ public class Door : MonoBehaviour, IInteractable
 {
     [SerializeField] private bool _isInteractable;
 
-    public void Initialize(bool isInteractable)
+    [SerializeField] private GameObject Exit;
+
+    public void Initialize(bool isInteractable, bool isExit)
     {
         _isInteractable = isInteractable;
+        Exit.SetActive(isExit);
     }
     public void Interact()
     {
@@ -20,6 +23,7 @@ public class Door : MonoBehaviour, IInteractable
 
     public void Open()
     {
+        // add dramatic camera to open
         StartCoroutine(AnimateOpen());
     }
 

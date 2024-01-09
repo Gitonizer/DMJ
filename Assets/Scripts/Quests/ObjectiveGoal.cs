@@ -4,9 +4,11 @@ public class ObjectiveGoal
     public string Description;
     public ObjectiveType Type;
     public Items Item;
+    public int CurrentQuantity;
     public int Quantity;
     public bool IsDone;
 
+    public RewardType RewardType;
     public Items ItemReward;
 
     public ObjectiveGoal(ObjectiveType type)
@@ -32,7 +34,8 @@ public class ObjectiveGoal
 
     public bool Validate()
     {
-        IsDone = true;
-        return true;
+        CurrentQuantity++;
+        IsDone = CurrentQuantity >= Quantity;
+        return CurrentQuantity >= Quantity;
     }
 }

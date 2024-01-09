@@ -6,18 +6,27 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private EnemyManager _enemyManager;
+    private static int _currentLevel = 0;
+    public int CurrentLevel;
+    [SerializeField] private EnemyManager _enemyManager; //eventually remove this
+
+    private void Start()
+    {
+        CurrentLevel = _currentLevel;
+    }
 
     private void OnEnable()
     {
         EventManager.OnCharacterDeath += OnCharacterDeath;
         EventManager.OnCharacterDeathAnimationFinished += OnCharacterDeathAnimationFinished;
+        EventManager.OnExitLevel += OnExitLevel;
     }
 
     private void OnDisable()
     {
         EventManager.OnCharacterDeath -= OnCharacterDeath;
         EventManager.OnCharacterDeathAnimationFinished -= OnCharacterDeathAnimationFinished;
+        EventManager.OnExitLevel += OnExitLevel;
     }
     private void OnCharacterDeath(Character character)
     {
@@ -51,5 +60,13 @@ public class GameManager : MonoBehaviour
             default:
                 break;
         }
+    }
+    private void OnExitLevel()
+    {
+        _currentLevel++;
+        CurrentLevel = _currentLevel;
+
+        Scene scene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(scene.name);
     }
 }

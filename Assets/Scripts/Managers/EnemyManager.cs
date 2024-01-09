@@ -23,13 +23,11 @@ public class EnemyManager : MonoBehaviour
     private void OnEnable()
     {
         EventManager.OnCharacterDeath += HandleDeath;
-        EventManager.OnEnemiesPlaced += SetEnemyNumber;
     }
 
     private void OnDisable()
     {
         EventManager.OnCharacterDeath -= HandleDeath;
-        EventManager.OnEnemiesPlaced -= SetEnemyNumber;
     }
 
     private void Awake()
@@ -57,14 +55,9 @@ public class EnemyManager : MonoBehaviour
         _enemies.Add(character);
     }
 
-    public void SetEnemyNumber(int number)
+    public IEnumerator QueryEnemyCount(Action<int> callback) // hacky
     {
-        _totalEnemies = number;
-    }
-
-    public IEnumerator QueryEnemyCount(Action<int> callback) // hacky, doesn't work
-    {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
         callback(transform.childCount);
     }
 }
