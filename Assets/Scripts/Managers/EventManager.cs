@@ -15,6 +15,7 @@ public class EventManager
     public static Action<StoryActor> OnOpenDialog;
     public static Action OnContinueDialog;
     public static Action OnCloseDialog;
+    public static Action OnLevelLoaded;
     public static Action OnWinScreen;
     public static Action OnExitLevel;
 }

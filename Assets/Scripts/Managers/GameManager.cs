@@ -9,16 +9,19 @@ public class GameManager : MonoBehaviour
     private static int _currentLevel = 0;
     public int CurrentLevel;
     [SerializeField] private EnemyManager _enemyManager; //eventually remove this
+    [SerializeField] private LoadingUI _loadingUI;
 
     private void Start()
     {
         CurrentLevel = _currentLevel;
+        _loadingUI.Initialize(_currentLevel);
     }
 
     private void OnEnable()
     {
         EventManager.OnCharacterDeath += OnCharacterDeath;
         EventManager.OnCharacterDeathAnimationFinished += OnCharacterDeathAnimationFinished;
+        EventManager.OnLevelLoaded += OnRemoveLoadingUI;
         EventManager.OnExitLevel += OnExitLevel;
     }
 
@@ -26,6 +29,7 @@ public class GameManager : MonoBehaviour
     {
         EventManager.OnCharacterDeath -= OnCharacterDeath;
         EventManager.OnCharacterDeathAnimationFinished -= OnCharacterDeathAnimationFinished;
+        EventManager.OnLevelLoaded -= OnRemoveLoadingUI;
         EventManager.OnExitLevel += OnExitLevel;
     }
     private void OnCharacterDeath(Character character)
@@ -68,5 +72,10 @@ public class GameManager : MonoBehaviour
 
         Scene scene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(scene.name);
+    }
+
+    private void OnRemoveLoadingUI()
+    {
+        StartCoroutine(_loadingUI.Hide());
     }
 }

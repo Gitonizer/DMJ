@@ -260,6 +260,9 @@ public class DungeonGenerator : MonoBehaviour
             yield return StartCoroutine(PlaceEnemies());
             yield return StartCoroutine(PlaceNPCs());
             yield return StartCoroutine(PlaceItems());
+
+            EventManager.OnLevelLoaded?.Invoke();
+
             yield break;
         }
 
@@ -577,7 +580,6 @@ public class DungeonGenerator : MonoBehaviour
 
             if (!pathSuccess) // not a valid map, reset generation
             {
-                print("GENERATION FAILED");
                 Scene scene = SceneManager.GetActiveScene();
                 SceneManager.LoadScene(scene.name);
             }
@@ -593,7 +595,6 @@ public class DungeonGenerator : MonoBehaviour
 
     public void InstantiateDoors(QuestScriptable quest) // use quest data later
     {
-
         // generate uninteractable door on entrance room (opposed to room entrance wall)
         PlaceDoorOnOppositeSide(_entranceRoom, false);
         // generate interactable door on exit room (random place opposed to room entrance wall)
