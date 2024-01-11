@@ -8,6 +8,8 @@ public class Door : MonoBehaviour, IInteractable
 
     [SerializeField] private GameObject Exit;
 
+    public GameObject FakeCamera;
+
     public void Initialize(bool isInteractable, bool isExit)
     {
         _isInteractable = isInteractable;
@@ -23,7 +25,6 @@ public class Door : MonoBehaviour, IInteractable
 
     public void Open()
     {
-        // add dramatic camera to open
         StartCoroutine(AnimateOpen());
     }
 
@@ -41,6 +42,7 @@ public class Door : MonoBehaviour, IInteractable
             yield return null;
         }
 
+        EventManager.OnDoorOpened?.Invoke();
         Destroy(gameObject);
     }
 }

@@ -10,17 +10,21 @@ public class CameraLook : MonoBehaviour
     private PlayerInputManager _inputManager;
     [SerializeField] private GameObject _virtualHead;
 
-    private bool _dialogOpen;
+    private bool _cameraTransitioning;
 
     private void OnEnable()
     {
         EventManager.OnOpenDialog += OnOpenDialog;
         EventManager.OnCloseDialog += OnCloseDialog;
+        EventManager.OnOpenDoor += OnOpenDoor;
+        EventManager.OnDoorOpened += OnDoorOpened;
     }
     private void OnDisable()
     {
         EventManager.OnOpenDialog -= OnOpenDialog;
         EventManager.OnCloseDialog -= OnCloseDialog;
+        EventManager.OnOpenDoor -= OnOpenDoor;
+        EventManager.OnDoorOpened -= OnDoorOpened;
     }
 
     void Awake()
@@ -32,7 +36,7 @@ public class CameraLook : MonoBehaviour
 
     void Update()
     {
-        if (_dialogOpen)
+        if (_cameraTransitioning)
             return;
 
         transform.localRotation = Quaternion.Euler(0, _inputManager.MouseLook.x, 0);
@@ -44,13 +48,25 @@ public class CameraLook : MonoBehaviour
     {
         StopAllCoroutines();
         StartCoroutine(MoveCamera(_camera.transform, actor.FakeCamera.transform, () => { }));
-        _dialogOpen = true;
+        _cameraTransitioning = true;
     }
 
     private void OnCloseDialog()
     {
         StopAllCoroutines();
-        StartCoroutine(MoveCamera(_camera.transform, _fakeCamera, () => _dialogOpen = false));
+        StartCoroutine(MoveCamera(_camera.transform, _fakeCamera, () => _cameraTransitioning = false));
+    }
+    private void OnOpenDoor(Door door)
+    {
+        StopAllCoroutines();
+        StartCoroutine(MoveCamera(_camera.transform, door.FakeCamera.transform, () => { }));
+        _cameraTransitioning = true;
+    }
+
+    private void OnDoorOpened()
+    {
+        StopAllCoroutines();
+        StartCoroutine(MoveCamera(_camera.transform, _fakeCamera, () => _cameraTransitioning = false));
     }
 
     private IEnumerator MoveCamera(Transform initialTransform, Transform finalTransform, Action doAction)

@@ -89,8 +89,6 @@ public class StoryManager : MonoBehaviour
                 }
             }
         }
-
-        print("you have no key yet");
     }
 
     private void OnEnemyDeath(Character character)
@@ -104,7 +102,10 @@ public class StoryManager : MonoBehaviour
                 {
                     //open door
                     if (goal.RewardType == RewardType.Door)
+                    {
+                        EventManager.OnOpenDoor?.Invoke(_dungeonGenerator.ExitDoor);
                         _dungeonGenerator.ExitDoor.Open();
+                    }
                 }
                 return;
             }

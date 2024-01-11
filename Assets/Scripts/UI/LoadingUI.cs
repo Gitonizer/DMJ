@@ -16,7 +16,7 @@ public class LoadingUI : MonoBehaviour
 
     private void Awake()
     {
-        _speed = 130f;
+        _speed = 120f;
         _initialPosition = _playerPic.transform.position;
         _canvas = GetComponent<Canvas>();
         _canvasGroup = GetComponent<CanvasGroup>();

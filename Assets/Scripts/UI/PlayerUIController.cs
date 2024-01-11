@@ -22,7 +22,7 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 
     private void OnDisable()
     {
-        EventManager.OnWinScreen += OnWin;
+        EventManager.OnWinScreen -= OnWin;
         EventManager.OnHeal -= OnHeal;
     }
 

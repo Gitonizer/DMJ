@@ -8,6 +8,7 @@ public class EventManager
     public static Action<Character> OnCharacterDeathAnimationFinished;
     public static Action<Character> OnCharacterDeath;
     public static Action<Door> OnOpenDoor;
+    public static Action OnDoorOpened;
     public static Action<int> OnEnemiesPlaced;
     public static Action<List<WorldItem>, bool> OnTrade;
     public static Action OnClose;
