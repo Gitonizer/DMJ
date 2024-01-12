@@ -17,6 +17,9 @@ public class Character : MonoBehaviour
     private DamageController _damageController;
     private ICharacterUIController _characterUIController;
 
+    private float NORMAL_SPEED = 10f;
+    private float DASH_SPEED = 20f;
+
     [SerializeField]
     private Vector3 _gravity;
     
@@ -77,6 +80,13 @@ public class Character : MonoBehaviour
                     _playerState = PlayerState.Attacking;
                     _animationController.CastSpell();
                     _spellController.CastSpell();
+                }
+
+                if (_inputManager.Dashing && _inputManager.ForwardMovement != 0)
+                {
+                    _playerState = PlayerState.Dashing;
+                    _animationController.Dash(true);
+                    _playerSpeed = DASH_SPEED;
                 }
 
                 if (_inputManager.PressedInventoryButton)
@@ -142,6 +152,15 @@ public class Character : MonoBehaviour
                 else
                 {
                     EventManager.OnCharacterDeathAnimationFinished?.Invoke(this);
+                }
+                break;
+            case PlayerState.Dashing:
+                _characterController.Move(DashingMovement());
+                if (!_inputManager.Dashing || _inputManager.ForwardMovement <= 0)
+                {
+                    _playerState = PlayerState.Grounded;
+                    _playerSpeed = NORMAL_SPEED;
+                    _animationController.Dash(false);
                 }
                 break;
             default:
@@ -234,5 +253,13 @@ public class Character : MonoBehaviour
         Vector3 forward = _inputManager.ForwardMovement * transform.forward;
         Vector3 strafe = _inputManager.SideMovement * transform.right;
         return _playerSpeed * Time.deltaTime * ((forward + strafe).normalized - _gravity);
+    }
+    private Vector3 DashingMovement()
+    {
+        if (_inputManager.ForwardMovement <= 0f)
+            return Vector3.zero;
+
+        Vector3 forward = _inputManager.ForwardMovement * transform.forward;
+        return _playerSpeed * Time.deltaTime * ((forward).normalized - _gravity);
     }
 }

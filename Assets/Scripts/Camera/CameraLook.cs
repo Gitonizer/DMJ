@@ -71,7 +71,7 @@ public class CameraLook : MonoBehaviour
 
     private IEnumerator MoveCamera(Transform initialTransform, Transform finalTransform, Action doAction)
     {
-        float duration = 1f;
+        float duration = 1.5f;
         float currentTime = 0f;
         Vector3 currentPosition;
         Quaternion currentRotation;

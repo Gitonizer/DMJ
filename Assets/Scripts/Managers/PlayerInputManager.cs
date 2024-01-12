@@ -14,6 +14,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private Vector3 _turn;
     private int _spellIndex;
     private bool _dialogOpen;
+    private bool _dashing;
 
     private const float CAMERA_SENSITIVITY = 10f;
 
@@ -28,6 +29,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     public bool Interacted { get { return _interacted; } set { _interacted = value; } }
 
     public bool PressedInventoryButton { get { return _pressedInventoryButton; } set { _pressedInventoryButton = value; } }
+    public bool Dashing { get { return _dashing; } set { _dashing = value; } }
 
     public bool EnableInteractions { get { return _enableInteractions; } set { _enableInteractions = value; } }
 
@@ -79,6 +81,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
             }
 
             _pressedInventoryButton = Input.GetKeyDown(KeyCode.I);
+            _dashing = Input.GetKey(KeyCode.LeftShift);
 
             if (Input.GetKeyDown(KeyCode.E))
             {

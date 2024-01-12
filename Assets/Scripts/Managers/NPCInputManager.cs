@@ -15,8 +15,8 @@ public class NPCInputManager : MonoBehaviour, IInputManager
 
     public bool Interacted { get; set; }
     public bool PressedInventoryButton { get; set; }
+    public bool Dashing { get; set; }
     public bool EnableInteractions { get; set; }
-
     public Vector2 HorizontalMovement { get; }
 
     public int SpellIndex { get; }

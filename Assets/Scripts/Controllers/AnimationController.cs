@@ -14,6 +14,7 @@ public class AnimationController : MonoBehaviour
     private int _castSpell;
     private int _getDamaged;
     private int _die;
+    private int _dash;
 
     private void Awake()
     {
@@ -28,6 +29,7 @@ public class AnimationController : MonoBehaviour
         _castSpell = Animator.StringToHash("CastSpell");
         _getDamaged = Animator.StringToHash("GetDamaged");
         _die = Animator.StringToHash("Die");
+        _dash = Animator.StringToHash("Dash");
     }
 
     public void AnimateGroundMovement(Vector2 movement)
@@ -56,5 +58,10 @@ public class AnimationController : MonoBehaviour
     public void Die()
     {
         _animator.SetTrigger(_die);
+    }
+
+    public void Dash(bool value)
+    {
+        _animator.SetBool(_dash, value);
     }
 }
