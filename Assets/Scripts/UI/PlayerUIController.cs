@@ -32,6 +32,12 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
         _slider.maxValue = maxHealth;
         _slider.value = maxHealth;
     }
+    public void Initialize(float maxHealth, float currentHealth)
+    {
+        _slider.minValue = 0;
+        _slider.maxValue = maxHealth;
+        _slider.value = currentHealth;
+    }
 
     public void OnDamage(DamageInfo damageInfo)
     {
@@ -50,7 +56,7 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 
     public void OnWin()
     {
-        StartCoroutine(CO_FadeInScreen(_winScreen, () => { EventManager.OnExitLevel?.Invoke(); }));
+        StartCoroutine(CO_FadeInScreen(_winScreen, () => { EventManager.OnExitLevel?.Invoke(_slider.value); }));
     }
 
     public void OnHeal(float value)

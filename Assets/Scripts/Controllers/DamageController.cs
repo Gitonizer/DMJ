@@ -31,6 +31,13 @@ public class DamageController : MonoBehaviour
         _resistance = characterStats.Resistance;
         _weakness = characterStats.Weakness;
     }
+    public void Initialize(CharacterStats characterStats, int currentHealth)
+    {
+        _maxHealth = characterStats.Health;
+        _currentHealth = currentHealth;
+        _resistance = characterStats.Resistance;
+        _weakness = characterStats.Weakness;
+    }
 
     public DamageInfo OnDamage(float value, Element element)
     {

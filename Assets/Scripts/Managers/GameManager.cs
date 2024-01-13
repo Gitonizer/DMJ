@@ -10,6 +10,20 @@ public class GameManager : MonoBehaviour
     public int CurrentLevel;
     [SerializeField] private EnemyManager _enemyManager; //eventually remove this
     [SerializeField] private LoadingUI _loadingUI;
+    [SerializeField] private FloorUI _foorUI;
+    private void Awake()
+    {
+        SaveManager.LoadData((data) =>
+        {
+            if (data != null)
+            {
+                _currentLevel = data.Level;
+            }
+            else print("data was null");
+        });
+
+        _foorUI.SetLevel(_currentLevel);
+    }
 
     private void Start()
     {
@@ -37,6 +51,7 @@ public class GameManager : MonoBehaviour
         switch (character.CharacterType)
         {
             case CharacterType.Player:
+                SaveManager.SaveData(0, 0); //reset level
                 break;
             case CharacterType.Enemy:
                 _enemyManager.HandleDeath(character);
@@ -65,10 +80,12 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
-    private void OnExitLevel()
+    private void OnExitLevel(float currentHealth)
     {
         _currentLevel++;
         CurrentLevel = _currentLevel;
+
+        SaveManager.SaveData(_currentLevel, (int)currentHealth);
 
         Scene scene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(scene.name);

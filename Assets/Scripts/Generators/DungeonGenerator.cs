@@ -66,8 +66,14 @@ public class DungeonGenerator : MonoBehaviour
 
     private QuestScriptable _quest;
 
+    private bool _slicesLoaded;
+
+    private List<PartitionSlice> _partitionSlices;
+
     private void Awake()
     {
+        _slicesLoaded = false;
+        _partitionSlices = new List<PartitionSlice>();
         _dungeonCells = new DungeonCell[20, 20]; // this size could be set by Quest
         _cellSize = 16f;
         _minPartitionArea = 60;
@@ -88,9 +94,27 @@ public class DungeonGenerator : MonoBehaviour
 
     public void Initialize(QuestScriptable quest)
     {
+        SaveManager.LoadData((data) =>
+        {
+            if (data != null)
+            {
+                if (data.PartitionSlices != null)
+                {
+                    if (data.PartitionSlices.Count > 0)
+                    {
+                        _slicesLoaded = true;
+
+                        _partitionSlices = data.PartitionSlices;
+                    }
+                }
+                else print("no partition slices on save file");
+            }
+            else print("data from save file is null");
+        });
+
         _quest = quest;
         InitializeCells(); //create cells on map
-        StartCoroutine(GenerateBSP(0)); //instantiate prefabs after deciding all celltypes
+        StartCoroutine(GenerateBSP(0, 0, true)); //instantiate prefabs after deciding all celltypes
     }
 
     private void InitializeCells()
@@ -156,9 +180,28 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    private IEnumerator GenerateBSP(int nodeNumber)
+    private IEnumerator GenerateBSP(int nodeNumber, int sliceIndex, bool createdNewNodes)
     {
-        bool createdNewNodes = false;
+        // if no nodes are created, stop recursivity
+        if (!createdNewNodes)
+        {
+            GenerateNodeRooms();
+            GeneratePaths(); // validating generated map here
+            InstantiatePrefabs();
+            SetEntranceAndExitRooms();
+            InstantiateDoors(_quest);
+            yield return StartCoroutine(PlacePlayer());
+            yield return StartCoroutine(PlaceEnemies());
+            yield return StartCoroutine(PlaceNPCs());
+            yield return StartCoroutine(PlaceItems());
+
+            SaveManager.SaveData(_partitionSlices);
+
+            EventManager.OnLevelLoaded?.Invoke();
+
+            yield break;
+        }
+
         List<DungeonNode> tempNodes = new List<DungeonNode>();
         // check node list size
         // if 0, create node with map size
@@ -179,23 +222,32 @@ public class DungeonGenerator : MonoBehaviour
             {
                 createdNewNodes = true;
 
-                bool horizontalCut = UnityRandom.Range(1, 101) > 50;
+                bool horizontalCut = _slicesLoaded ? _partitionSlices[sliceIndex].IsHorizontal : UnityRandom.Range(1, 101) > 50;
 
                 if (horizontalCut)
                 {
                     int randomY;
 
-                    if (node.PartitionHeight > 8) //make sure we don't cut partitions too small
+                    if (_slicesLoaded)
+                    {
+                        randomY = _partitionSlices[sliceIndex].Value;
+                        sliceIndex++;
+                    }
+                    else if (node.PartitionHeight > 8) //make sure we don't cut partitions too small
                     {
                         //find random y
                         int minrandomY = (int)Mathf.Lerp(node.PartitionLimits.y, node.PartitionLimits.w, 0.3f);
                         int maxrandomY = (int)Mathf.Lerp(node.PartitionLimits.y, node.PartitionLimits.w, 0.7f);
 
                         randomY = UnityRandom.Range(minrandomY, maxrandomY);
+
+                        _partitionSlices.Add(new PartitionSlice(horizontalCut, randomY));
                     }
                     else
                     {
                         randomY = (int)Mathf.Lerp(node.PartitionLimits.y, node.PartitionLimits.w, 0.5f);
+
+                        _partitionSlices.Add(new PartitionSlice(horizontalCut, randomY));
                     }
 
                     // create nodes
@@ -217,17 +269,26 @@ public class DungeonGenerator : MonoBehaviour
                 {
                     int randomX;
 
-                    if (node.PartitionWith > 8) //make sure we don't cut partitions too small
+                    if (_slicesLoaded)
+                    {
+                        randomX = _partitionSlices[sliceIndex].Value;
+                        sliceIndex++;
+                    }
+                    else if (node.PartitionWith > 8) //make sure we don't cut partitions too small
                     {
                         //find random x
                         int minrandomX = (int)Mathf.Lerp(node.PartitionLimits.x, node.PartitionLimits.z, 0.3f);
                         int maxrandomX = (int)Mathf.Lerp(node.PartitionLimits.x, node.PartitionLimits.z, 0.7f);
 
                         randomX = UnityRandom.Range(minrandomX, maxrandomX);
+
+                        _partitionSlices.Add(new PartitionSlice(horizontalCut, randomX));
                     }
                     else
                     {
                         randomX = (int)Mathf.Lerp(node.PartitionLimits.x, node.PartitionLimits.z, 0.5f);
+
+                        _partitionSlices.Add(new PartitionSlice(horizontalCut, randomX));
                     }
 
                     // create nodes
@@ -246,30 +307,13 @@ public class DungeonGenerator : MonoBehaviour
                     tempNodes.Add(node2);
                 }
             }
-        }
-
-        // if no nodes are created, stop recursivity
-        if (!createdNewNodes)
-        {
-            GenerateNodeRooms(); 
-            GeneratePaths(); // validating generated map here
-            InstantiatePrefabs();
-            SetEntranceAndExitRooms();
-            InstantiateDoors(_quest);
-            yield return StartCoroutine(PlacePlayer());
-            yield return StartCoroutine(PlaceEnemies());
-            yield return StartCoroutine(PlaceNPCs());
-            yield return StartCoroutine(PlaceItems());
-
-            EventManager.OnLevelLoaded?.Invoke();
-
-            yield break;
+            else createdNewNodes = false;
         }
 
         _dungeonNodes.AddRange(tempNodes);
 
         // repeat until no node can be cut (recursive)
-        StartCoroutine(GenerateBSP(nodeNumber));
+        StartCoroutine(GenerateBSP(nodeNumber, sliceIndex, createdNewNodes));
     }
 
     private void GenerateNodeRooms()

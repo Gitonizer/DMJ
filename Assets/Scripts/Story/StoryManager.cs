@@ -87,6 +87,10 @@ public class StoryManager : MonoBehaviour
                     goal.IsDone = true;
                     return;
                 }
+                else
+                {
+                    EventManager.OnDoorOpened?.Invoke();
+                }
             }
         }
     }

@@ -54,8 +54,27 @@ public class Character : MonoBehaviour
 
     private void Start()
     {
-        _damageController.Initialize(_characterStats);
-        _characterUIController.Initialize(_characterStats.Health);
+        if (_characterType == CharacterType.Player)
+        {
+            SaveData savedata = null;
+            SaveManager.LoadData((data) => savedata = data);
+
+            if (savedata.CurrentHealth <= 0)
+            {
+                _damageController.Initialize(_characterStats);
+                _characterUIController.Initialize(_characterStats.Health);
+            }
+            else
+            {
+                _damageController.Initialize(_characterStats, savedata.CurrentHealth);
+                _characterUIController.Initialize(_characterStats.Health, savedata.CurrentHealth);
+            }
+        }
+        else
+        {
+            _damageController.Initialize(_characterStats);
+            _characterUIController.Initialize(_characterStats.Health);
+        }
     }
 
     private void Update()

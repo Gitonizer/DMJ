@@ -26,6 +26,12 @@ public class EnemyUIController : MonoBehaviour, ICharacterUIController
         _slider.maxValue = maxHealth;
         _slider.value = maxHealth;
     }
+    public void Initialize(float maxHealth, float currentHealth)
+    {
+        _slider.minValue = 0;
+        _slider.maxValue = maxHealth;
+        _slider.value = currentHealth;
+    }
 
     public void OnDamage(DamageInfo damageInfo)
     {

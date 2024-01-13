@@ -18,5 +18,5 @@ public class EventManager
     public static Action OnCloseDialog;
     public static Action OnLevelLoaded;
     public static Action OnWinScreen;
-    public static Action OnExitLevel;
+    public static Action<float> OnExitLevel;
 }
