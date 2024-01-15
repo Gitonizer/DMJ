@@ -9,4 +9,5 @@ public interface ICharacterUIController
     public void OnDamage(DamageInfo damageInfo);
     public void OnDeath();
     void SelectSpell(SpellScriptable spell);
+    void PlayDash(float dashcombotime, int dashcombo);
 }

@@ -37,10 +37,21 @@ public class Character : MonoBehaviour
     private bool _isInitialized;
     private Vector3 _initialPosition;
 
+    private const float DASH_COOLDOWN = 1f;
+    private const float DASH_COMBO_TIME = 1f;
+    private bool _dashCoolDown;
+    private float _currentCooldownTime;
+    private float _currentDashTime;
+    private int _dashComboCounter;
+
     public CharacterType CharacterType { get { return _characterType; } }
 
     private void Awake()
     {
+        _dashComboCounter = 0;
+        _dashCoolDown = false;
+        _currentCooldownTime = 0f;
+        _currentDashTime = 0f;
         _characterController = GetComponent<CharacterController>();
         _animator = GetComponent<Animator>();
         _animationController = GetComponent<AnimationController>();
@@ -82,6 +93,17 @@ public class Character : MonoBehaviour
         if (!_isInitialized)
             return;
 
+        if (_dashCoolDown)
+        {
+            _currentCooldownTime += Time.deltaTime;
+        }
+
+        if (_currentCooldownTime > DASH_COOLDOWN)
+        {
+            _dashCoolDown = false;
+            _currentCooldownTime = 0f;
+        }
+
         if (transform.position.x == 0 && transform.position.z == 0) //hack :/
         {
             transform.position = _initialPosition;
@@ -101,11 +123,12 @@ public class Character : MonoBehaviour
                     _spellController.CastSpell();
                 }
 
-                if (_inputManager.Dashing && _inputManager.ForwardMovement != 0)
+                if (_inputManager.Dashing && _inputManager.ForwardMovement != 0 && !_dashCoolDown)
                 {
                     _playerState = PlayerState.Dashing;
                     _animationController.Dash(true);
                     _playerSpeed = DASH_SPEED;
+                    _characterUIController.PlayDash(DASH_COMBO_TIME, _dashComboCounter);
                 }
 
                 if (_inputManager.PressedInventoryButton)
@@ -175,9 +198,43 @@ public class Character : MonoBehaviour
                 break;
             case PlayerState.Dashing:
                 _characterController.Move(DashingMovement());
-                if (!_inputManager.Dashing || _inputManager.ForwardMovement <= 0)
+                _currentDashTime += Time.deltaTime;
+
+                if (_inputManager.Dashing) //evaluate if within combo range
                 {
+                    if (_currentDashTime > DASH_COMBO_TIME - 0.1f && _currentDashTime < DASH_COMBO_TIME + 0.1f)
+                    {
+                        _dashComboCounter++;
+                        _characterUIController.PlayDash(DASH_COMBO_TIME, _dashComboCounter);
+                        _currentDashTime = 0f;
+                    }
+                    else
+                    {
+                        _dashComboCounter = 0;
+                        _playerState = PlayerState.Grounded;
+                        _currentDashTime = 0f;
+                        _dashCoolDown = true;
+                        _playerSpeed = NORMAL_SPEED;
+                        _animationController.Dash(false);
+                    }
+                }
+
+                if (_currentDashTime > DASH_COMBO_TIME + 0.2f)
+                {
+                    _dashComboCounter = 0;
                     _playerState = PlayerState.Grounded;
+                    _currentDashTime = 0f;
+                    _dashCoolDown = true;
+                    _playerSpeed = NORMAL_SPEED;
+                    _animationController.Dash(false);
+                }
+
+                if (_inputManager.ForwardMovement <= 0)
+                {
+                    _dashComboCounter = 0;
+                    _playerState = PlayerState.Grounded;
+                    _currentDashTime = 0f;
+                    _dashCoolDown = true;
                     _playerSpeed = NORMAL_SPEED;
                     _animationController.Dash(false);
                 }

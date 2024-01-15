@@ -46,4 +46,6 @@ public class EnemyUIController : MonoBehaviour, ICharacterUIController
     public void OnDeath(){}
 
     public void SelectSpell(SpellScriptable spell) {}
+
+    public void PlayDash(float dashcombotime, int dashcombocounter) {}
 }

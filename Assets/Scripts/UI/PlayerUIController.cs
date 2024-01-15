@@ -6,13 +6,23 @@ using UnityEngine.UI;
 
 public class PlayerUIController : MonoBehaviour, ICharacterUIController
 {
-    [SerializeField] private Slider _slider;
+    [SerializeField] private Slider _healthSlider;
     [SerializeField] private CanvasGroup _deathScreen;
     [SerializeField] private CanvasGroup _winScreen;
     [SerializeField] private Text _spellText;
     [SerializeField] private Image _spellImage;
     [SerializeField] private DamageUIController UIDamagePrefab;
     [SerializeField] private Transform UIDamageParent;
+    [SerializeField] private GameObject _dashSliderObject;
+
+    private Slider _dashSlider;
+    private Text _dashText;
+
+    private void Awake()
+    {
+        _dashSlider = _dashSliderObject.GetComponentInChildren<Slider>();
+        _dashText = _dashSliderObject.GetComponentInChildren<Text>();
+    }
 
     private void OnEnable()
     {
@@ -28,21 +38,21 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 
     public void Initialize(float maxHealth)
     {
-        _slider.minValue = 0;
-        _slider.maxValue = maxHealth;
-        _slider.value = maxHealth;
+        _healthSlider.minValue = 0;
+        _healthSlider.maxValue = maxHealth;
+        _healthSlider.value = maxHealth;
     }
     public void Initialize(float maxHealth, float currentHealth)
     {
-        _slider.minValue = 0;
-        _slider.maxValue = maxHealth;
-        _slider.value = currentHealth;
+        _healthSlider.minValue = 0;
+        _healthSlider.maxValue = maxHealth;
+        _healthSlider.value = currentHealth;
     }
 
     public void OnDamage(DamageInfo damageInfo)
     {
-        _slider.value -= damageInfo.Value;
-        _slider.value = Mathf.Clamp(_slider.value, _slider.minValue, _slider.maxValue);
+        _healthSlider.value -= damageInfo.Value;
+        _healthSlider.value = Mathf.Clamp(_healthSlider.value, _healthSlider.minValue, _healthSlider.maxValue);
 
         DamageUIController damageUIController = Instantiate(UIDamagePrefab, UIDamageParent);
         damageUIController.Initialize(damageInfo.Value, damageInfo.Element, damageInfo.EffectiveNess);
@@ -56,13 +66,13 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
 
     public void OnWin()
     {
-        StartCoroutine(CO_FadeInScreen(_winScreen, () => { EventManager.OnExitLevel?.Invoke(_slider.value); }));
+        StartCoroutine(CO_FadeInScreen(_winScreen, () => { EventManager.OnExitLevel?.Invoke(_healthSlider.value); }));
     }
 
     public void OnHeal(float value)
     {
-        _slider.value += value;
-        _slider.value = Mathf.Clamp(_slider.value, _slider.minValue, _slider.maxValue);
+        _healthSlider.value += value;
+        _healthSlider.value = Mathf.Clamp(_healthSlider.value, _healthSlider.minValue, _healthSlider.maxValue);
     }
 
     private IEnumerator CO_FadeInScreen(CanvasGroup canvasGroup, Action callback)
@@ -98,6 +108,29 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
             default:
                 break;
         }
+    }
+    public void PlayDash(float dashcombotime, int dashcombo)
+    {
+        _dashText.text = "Dash combo: " + dashcombo;
+        //start a coroutine that uses dashcombotime to animate a slider or some shit
+        StartCoroutine(AnimateDashSlider(dashcombotime));
+    }
+    private IEnumerator AnimateDashSlider(float dashcombotime)
+    {
+        _dashSliderObject.SetActive(true);
+
+        _dashSlider.maxValue = dashcombotime;
+        float currentTime = 0f;
+
+        while (currentTime < dashcombotime)
+        {
+            _dashSliderObject.SetActive(true);
+            _dashSlider.value = Mathf.Lerp(0, _dashSlider.maxValue, currentTime / dashcombotime);
+            currentTime += Time.deltaTime;
+            yield return null;
+        }
+
+        _dashSliderObject.SetActive(false);
     }
     private void OnDamage(float value, Element element, TypeEffectiveness effectiveness)
     {

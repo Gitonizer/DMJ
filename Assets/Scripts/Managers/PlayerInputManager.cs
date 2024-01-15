@@ -81,7 +81,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
             }
 
             _pressedInventoryButton = Input.GetKeyDown(KeyCode.I);
-            _dashing = Input.GetKey(KeyCode.LeftShift);
+            _dashing = Input.GetKeyDown(KeyCode.LeftShift);
 
             if (Input.GetKeyDown(KeyCode.E))
             {
