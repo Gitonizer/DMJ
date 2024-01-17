@@ -70,7 +70,7 @@ public class Character : MonoBehaviour
             SaveData savedata = null;
             SaveManager.LoadData((data) => savedata = data);
 
-            if (savedata.CurrentHealth <= 0)
+            if (savedata.CurrentHealth <= 0 || savedata.Level <= 0)
             {
                 _damageController.Initialize(_characterStats);
                 _characterUIController.Initialize(_characterStats.Health);

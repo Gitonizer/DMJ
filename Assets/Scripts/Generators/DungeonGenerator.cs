@@ -100,7 +100,7 @@ public class DungeonGenerator : MonoBehaviour
             {
                 if (data.PartitionSlices != null)
                 {
-                    if (data.PartitionSlices.Count > 0)
+                    if (data.PartitionSlices.Count > 0 && data.Level > 0) //if first level, dont load partitions
                     {
                         _slicesLoaded = true;
 
