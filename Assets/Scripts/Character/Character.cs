@@ -18,7 +18,7 @@ public class Character : MonoBehaviour
     private ICharacterUIController _characterUIController;
 
     private float NORMAL_SPEED = 10f;
-    private float DASH_SPEED = 20f;
+    private float DASH_SPEED = 30f;
 
     [SerializeField]
     private Vector3 _gravity;
@@ -199,6 +199,7 @@ public class Character : MonoBehaviour
             case PlayerState.Dashing:
                 _characterController.Move(DashingMovement());
                 _currentDashTime += Time.deltaTime;
+                _playerSpeed -= Time.deltaTime * 15f;
 
                 if (_inputManager.Dashing) //evaluate if within combo range
                 {
@@ -207,6 +208,7 @@ public class Character : MonoBehaviour
                         _dashComboCounter++;
                         _characterUIController.PlayDash(DASH_COMBO_TIME, _dashComboCounter);
                         _currentDashTime = 0f;
+                        _playerSpeed = DASH_SPEED;
                     }
                     else
                     {
