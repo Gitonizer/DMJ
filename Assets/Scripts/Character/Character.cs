@@ -120,7 +120,7 @@ public class Character : MonoBehaviour
                 {
                     _playerState = PlayerState.Attacking;
                     _animationController.CastSpell();
-                    _spellController.CastSpell();
+                    _spellController.CastSpell(_characterType);
                 }
 
                 if (_inputManager.Dashing && _inputManager.ForwardMovement != 0 && !_dashCoolDown)
@@ -264,7 +264,7 @@ public class Character : MonoBehaviour
         if (_spellController)
         {
             _spellController.SelectSpell(_inputManager.SpellIndex - 1);
-            _characterUIController.SelectSpell(_spellController.Spells[_inputManager.SpellIndex - 1]);
+            _characterUIController.SelectSpell(_spellController.Spells[Mathf.Clamp(_inputManager.SpellIndex - 1, 0, _spellController.Spells.Count - 1)]);
         }
 
     }

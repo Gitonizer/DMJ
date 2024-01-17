@@ -23,13 +23,13 @@ public class SpellController : MonoBehaviour
         SpellParent = projectilesParent;
     }
 
-    public void CastSpell()
+    public void CastSpell(CharacterType characterType)
     {
         //logic for current spell later
         Projectile projectile = Instantiate(_currentSpell.Projectile, SpellParent);
         projectile.transform.SetPositionAndRotation(StartingTransform.position, StartingTransform.rotation);
 
-        projectile.Initialize(_currentSpell);
+        projectile.Initialize(_currentSpell, characterType);
     }
 
     public void SelectSpell(int index)
