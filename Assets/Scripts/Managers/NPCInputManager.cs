@@ -23,6 +23,8 @@ public class NPCInputManager : MonoBehaviour, IInputManager
 
     public Vector3 MouseLook { get; }
 
+    public bool IsSelectingSpell { get; set; }
+
     private void Update()
     {
         transform.LookAt(_player);

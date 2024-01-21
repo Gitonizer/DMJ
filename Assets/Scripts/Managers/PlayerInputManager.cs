@@ -11,6 +11,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private bool _enableInteractions;
     private bool _interacted;
     private bool _pressedInventoryButton;
+    private bool _isSelectingSpell;
     private Vector3 _turn;
     private int _spellIndex;
     private bool _dialogOpen;
@@ -39,6 +40,8 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public Vector3 MouseLook { get { return _turn; } }
 
+    public bool IsSelectingSpell { get { return _isSelectingSpell; } }
+
     private void OnEnable()
     {
         EventManager.OnOpenDialog += OnOpenDialog;
@@ -63,6 +66,8 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public void Update()
     {
+        _isSelectingSpell = false;
+
         if (_dialogOpen)
         {
             if (Input.GetKeyDown(KeyCode.E))
@@ -77,6 +82,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
                 if (Input.GetKeyDown(number.ToString()))
                 {
                     _spellIndex = number;
+                    _isSelectingSpell = true;
                 }
             }
 

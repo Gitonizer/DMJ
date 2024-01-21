@@ -34,10 +34,11 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
     public int SpellIndex { get { return _spellIndex; } }
 
     public Vector3 MouseLook { get { return _turn; } }
+    public bool IsSelectingSpell { get; set; }
 
-    public void Initialize(Transform playerTransform, int spellCount)
+    public void Initialize(Transform playerTransform, int spellCount, int spellIndex)
     {
-        _spellIndex = 1;
+        _spellIndex = spellIndex + 1; // I don't know what I was smoking
         _spellCount = spellCount;
         PlayerTransform = playerTransform;
     }
@@ -60,7 +61,6 @@ public class EnemyInputManager : MonoBehaviour, IInputManager
         {
             _forwardMovement = 0f;
             _attacked = !_disableAttacks;
-            _spellIndex = Random.Range(1, _spellCount + 1);
         }
     }
 }

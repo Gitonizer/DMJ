@@ -5385,11 +5385,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1801562655}
   m_CullTransparentMesh: 1
---- !u!1 &1886946773 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7538637106653143505, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
-  m_PrefabInstance: {fileID: 1280865805402294410}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1888419259
 GameObject:
   m_ObjectHideFlags: 0
@@ -6350,6 +6345,30 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2628394944418786205, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2628394944418786205, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2628394944418786205, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2628394944418786205, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2628394944418786205, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2628394944418786205, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2649759040569265775, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -6468,7 +6487,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6063639719139245466, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 82.8699
+      value: 163.1584
       objectReference: {fileID: 0}
     - target: {fileID: 6063639719139245466, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_SizeDelta.y
@@ -6486,10 +6505,6 @@ PrefabInstance:
       propertyPath: _healthSlider
       value: 
       objectReference: {fileID: 1459959782}
-    - target: {fileID: 6492730776019568981, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
-      propertyPath: _dashSliderObject
-      value: 
-      objectReference: {fileID: 1886946773}
     - target: {fileID: 7299352427647053860, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -6521,6 +6536,10 @@ PrefabInstance:
     - target: {fileID: 7818629750328021096, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8181258848948570773, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
+      propertyPath: m_Text
+      value: "Combina\xE7\xE3o corrida:  "
       objectReference: {fileID: 0}
     - target: {fileID: 8181258848948570773, guid: d9f8c69f62c3ce94d8802af91986f82e, type: 3}
       propertyPath: m_FontData.m_BestFit

@@ -18,18 +18,29 @@ public class SpellController : MonoBehaviour
         _currentSpell = Spells[0];
     }
 
-    public void Initialize(Transform projectilesParent)
+    public int Initialize(Transform projectilesParent, Element element)
     {
         SpellParent = projectilesParent;
+
+        for (int i = 0; i < Spells.Count; i++)
+        {
+            if (Spells[i].Element == element)
+            {
+                _currentSpell = Spells[i];
+                return i;
+            }
+        }
+
+        return 0;
     }
 
-    public void CastSpell(CharacterType characterType)
+    public void CastSpell(Character projectileOwner)
     {
         //logic for current spell later
         Projectile projectile = Instantiate(_currentSpell.Projectile, SpellParent);
         projectile.transform.SetPositionAndRotation(StartingTransform.position, StartingTransform.rotation);
 
-        projectile.Initialize(_currentSpell, characterType);
+        projectile.Initialize(_currentSpell, projectileOwner);
     }
 
     public void SelectSpell(int index)

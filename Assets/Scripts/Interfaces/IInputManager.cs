@@ -19,4 +19,6 @@ public interface IInputManager
     public int SpellIndex { get; }
 
     public Vector3 MouseLook { get; }
+
+    public bool IsSelectingSpell { get; }
 }

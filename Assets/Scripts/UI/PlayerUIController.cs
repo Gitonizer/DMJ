@@ -111,7 +111,7 @@ public class PlayerUIController : MonoBehaviour, ICharacterUIController
     }
     public void PlayDash(float dashcombotime, int dashcombo)
     {
-        _dashText.text = "Dash combo: " + dashcombo;
+        _dashText.text = "Combinação corrida: " + dashcombo;
         //start a coroutine that uses dashcombotime to animate a slider or some shit
         StartCoroutine(AnimateDashSlider(dashcombotime));
     }

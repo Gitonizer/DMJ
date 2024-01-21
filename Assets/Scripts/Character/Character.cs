@@ -14,6 +14,7 @@ public class Character : MonoBehaviour
     private Animator _animator;
     private AnimationController _animationController;
     private SpellController _spellController;
+    private CharacterColorController _colorController;
     private DamageController _damageController;
     private ICharacterUIController _characterUIController;
 
@@ -46,8 +47,11 @@ public class Character : MonoBehaviour
 
     public CharacterType CharacterType { get { return _characterType; } }
 
+    private float _parryDuration;
+
     private void Awake()
     {
+        _parryDuration = 0f;
         _dashComboCounter = 0;
         _dashCoolDown = false;
         _currentCooldownTime = 0f;
@@ -56,6 +60,7 @@ public class Character : MonoBehaviour
         _animator = GetComponent<Animator>();
         _animationController = GetComponent<AnimationController>();
         _spellController = GetComponent<SpellController>();
+        _colorController = GetComponent<CharacterColorController>();
         _gravity = transform.up * 9.8f;
         _inputManager = GetComponent<IInputManager>();
         _damageController = GetComponent<DamageController>();
@@ -104,6 +109,16 @@ public class Character : MonoBehaviour
             _currentCooldownTime = 0f;
         }
 
+        if (_parryDuration > 0)
+        {
+            _parryDuration -= Time.deltaTime;
+        }
+
+        if (_inputManager.IsSelectingSpell)
+        {
+            _parryDuration = Constants.PARRY_DURATION;
+        }
+
         if (transform.position.x == 0 && transform.position.z == 0) //hack :/
         {
             transform.position = _initialPosition;
@@ -120,7 +135,7 @@ public class Character : MonoBehaviour
                 {
                     _playerState = PlayerState.Attacking;
                     _animationController.CastSpell();
-                    _spellController.CastSpell(_characterType);
+                    _spellController.CastSpell(this);
                 }
 
                 if (_inputManager.Dashing && _inputManager.ForwardMovement != 0 && !_dashCoolDown)
@@ -263,8 +278,11 @@ public class Character : MonoBehaviour
 
         if (_spellController)
         {
+            SpellScriptable spell = _spellController.Spells[Mathf.Clamp(_inputManager.SpellIndex - 1, 0, _spellController.Spells.Count - 1)];
             _spellController.SelectSpell(_inputManager.SpellIndex - 1);
-            _characterUIController.SelectSpell(_spellController.Spells[Mathf.Clamp(_inputManager.SpellIndex - 1, 0, _spellController.Spells.Count - 1)]);
+            _colorController.ChangeChestColor(spell.Element);
+            _characterUIController.SelectSpell(spell);
+            _damageController.ChangeResistance(spell.Element);
         }
 
     }
@@ -303,26 +321,35 @@ public class Character : MonoBehaviour
         _isInitialized = true;
     }
 
-    public void OnDamage(float damage, Element element)
+    public void OnDamage(float damage, Element element, Character projectileOwer)
     {
         if (_characterType == CharacterType.NPC)
             return;
 
-        DamageInfo damageInfo = _damageController.OnDamage(damage, element);
-        _characterUIController.OnDamage(damageInfo);
-
-        if (_damageController.CurrentHealth <= 0)
+        if (_damageController.CurrentCharacterElement == element && _parryDuration > 0f) // can parry
         {
-            GetComponent<Collider>().enabled = false;
-            _playerState = PlayerState.Death;
-            _animationController.Die();
-            EventManager.OnCharacterDeath?.Invoke(this);
-            _characterUIController.OnDeath();
+            // parry
+            _parryDuration = 0f;
+            projectileOwer.OnDamage(damage, element, this);
         }
         else
         {
-            _playerState = PlayerState.Damaged;
-            _animationController.GetDamaged();
+            DamageInfo damageInfo = _damageController.OnDamage(damage, element);
+            _characterUIController.OnDamage(damageInfo);
+
+            if (_damageController.CurrentHealth <= 0)
+            {
+                GetComponent<Collider>().enabled = false;
+                _playerState = PlayerState.Death;
+                _animationController.Die();
+                EventManager.OnCharacterDeath?.Invoke(this);
+                _characterUIController.OnDeath();
+            }
+            else
+            {
+                _playerState = PlayerState.Damaged;
+                _animationController.GetDamaged();
+            }
         }
     }
 

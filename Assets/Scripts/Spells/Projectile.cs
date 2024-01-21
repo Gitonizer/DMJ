@@ -12,7 +12,7 @@ public class Projectile : MonoBehaviour
     private float _speed;
     private float _damage;
 
-    private CharacterType _characterType;
+    private Character _projectileOwner;
 
     private void Awake()
     {
@@ -23,14 +23,14 @@ public class Projectile : MonoBehaviour
         transform.Translate(_speed * Time.deltaTime * Vector3.forward);
     }
 
-    public void Initialize(SpellScriptable spellScriptable, CharacterType characterType)
+    public void Initialize(SpellScriptable spellScriptable, Character projectileOwner)
     {
         Destroy(gameObject, spellScriptable.LifeTime);
         _speed = spellScriptable.Speed;
         _damage = spellScriptable.Damage;
         Element = spellScriptable.Element;
 
-        _characterType = characterType;
+        _projectileOwner = projectileOwner;
 
         switch (Element)
         {
@@ -63,8 +63,8 @@ public class Projectile : MonoBehaviour
         {
             Character character = collision.gameObject.GetComponent<Character>();
 
-            if (character.CharacterType != _characterType) // prevent hurting yourself
-                character.OnDamage(_damage, Element);
+            if (character != _projectileOwner) // prevent hurting yourself
+                character.OnDamage(_damage, Element, _projectileOwner);
         }
 
         //maybe spawn particles here later

@@ -8,12 +8,16 @@ public class DamageController : MonoBehaviour
     private Element _resistance;
     private Element _weakness;
 
+    private Element? _currentElement = null;
+
     private const float RESISTANCE_FACTOR = 0.5f;
     private const float WEAKNESS_FACTOR = 1.5f;
 
     public float CurrentHealth { get { return _currentHealth; } }
 
     private float _maxHealth;
+
+    public Element? CurrentCharacterElement { get { return _currentElement; } }
 
     private void OnEnable()
     {
@@ -49,6 +53,33 @@ public class DamageController : MonoBehaviour
     {
         _currentHealth += value;
         _currentHealth = Mathf.Clamp(_currentHealth, 0, _maxHealth);
+    }
+
+    public void ChangeResistance(Element element)
+    {
+        if (_currentElement == element)
+            return;
+
+        switch (element)
+        {
+            case Element.Fire:
+                _resistance = Element.Fire;
+                _weakness = Element.Wind;
+                _currentElement = element;
+                break;
+            case Element.Ice:
+                _resistance = Element.Ice;
+                _weakness = Element.Fire;
+                _currentElement = element;
+                break;
+            case Element.Wind:
+                _resistance = Element.Wind;
+                _weakness = Element.Ice;
+                _currentElement = element;
+                break;
+            default:
+                break;
+        }
     }
 
     private DamageInfo CalculateDamage(float value, Element element)
