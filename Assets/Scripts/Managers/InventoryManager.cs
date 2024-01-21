@@ -18,12 +18,16 @@ public class InventoryManager : MonoBehaviour
 
     public bool IsUp { get { return _isUp; } }
 
+    private Animator _animator;
+
     private void Awake()
     {
         _inventoryCanvas = GetComponent<Canvas>();
 
         _playerInventoryCells = _playerInventory.GetComponentsInChildren<Cell>();
         _traderInventoryCells = _traderInventory.GetComponentsInChildren<Cell>();
+
+        _animator = GetComponent<Animator>();
     }
 
     private void OnEnable()
@@ -40,23 +44,25 @@ public class InventoryManager : MonoBehaviour
 
     public void OnInventory()
     {
-        _inventoryCanvas.enabled = !_inventoryCanvas.enabled;
-
-        Cursor.lockState = _inventoryCanvas.enabled ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = _inventoryCanvas.enabled;
+        if (_inventoryCanvas.enabled)
+        {
+            _animator.Play("Close");
+            EnableMouse(false);
+        }
+        else
+        {
+            _animator.Play("Open");
+            EnableMouse(true);
+        }
 
         _playerInventory.SetActive(true);
         _traderInventory.SetActive(false);
-
-        _isUp = _inventoryCanvas.enabled;
     }
 
     public void OnClose()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        _inventoryCanvas.enabled = false;
+        _animator.Play("Close");
+        EnableMouse(false);
 
         foreach (var cell in _traderInventoryCells)
         {
@@ -66,11 +72,6 @@ public class InventoryManager : MonoBehaviour
                 cell.HasItem = false;
             }
         }
-
-        _playerInventory.SetActive(false);
-        _traderInventory.SetActive(false);
-
-        _isUp = _inventoryCanvas.enabled;
     }
 
     private void OnTrade(List<WorldItem> worldItems, bool isBox)
@@ -101,15 +102,19 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        _inventoryCanvas.enabled = !_inventoryCanvas.enabled;
+        if (_inventoryCanvas.enabled)
+        {
+            _animator.Play("Close");
+            EnableMouse(false);
+        }
+        else
+        {
+            _animator.Play("Open");
+            EnableMouse(true);
 
-        Cursor.lockState = _inventoryCanvas.enabled ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = _inventoryCanvas.enabled;
-
-        _playerInventory.SetActive(_inventoryCanvas.enabled);
-        _traderInventory.SetActive(_inventoryCanvas.enabled);
-
-        _isUp = _inventoryCanvas.enabled;
+            _playerInventory.SetActive(true);
+            _traderInventory.SetActive(true);
+        }
     }
 
     public bool DeliverItem(Items item)
@@ -128,5 +133,25 @@ public class InventoryManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void EnableMouse(bool value)
+    {
+        Cursor.lockState = value ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = value;
+    }
+
+    // events for animation
+    public void OnEnableInventory()
+    {
+        _inventoryCanvas.enabled = _isUp = true;
+    }
+
+    public void OnDisableInventory()
+    {
+        _inventoryCanvas.enabled = _isUp = false;
+
+        _playerInventory.SetActive(false);
+        _traderInventory.SetActive(false);
     }
 }

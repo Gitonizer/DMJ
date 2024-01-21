@@ -143,6 +143,10 @@ public class StoryManager : MonoBehaviour
             _dialogueUI.EnableNextButton(false);
             _dialogueUI.GenerateButtons(Story, OnContinueDialog);
         }
+        else if (!Story.canContinue && Story.currentChoices.Count != 0)
+        {
+            // do nothing
+        }
         else
         {
             // end of story?

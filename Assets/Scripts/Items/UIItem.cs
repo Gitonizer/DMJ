@@ -26,6 +26,13 @@ public class UIItem : MonoBehaviour
     private Transform _parentWhileDragging;
     private Transform _lastParent;
 
+    private Animation _animPickUp;
+
+    private void Awake()
+    {
+        _animPickUp = GetComponent<Animation>();
+    }
+
     public void Initialize(ItemData itemData, Transform inventoryTransform)
     {
         _lastParent = transform.parent;
@@ -127,6 +134,11 @@ public class UIItem : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    public void OnDown()
+    {
+        _animPickUp.Play();
     }
 
     public void DestroyWorldItem()
