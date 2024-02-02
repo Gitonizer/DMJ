@@ -65,10 +65,10 @@ public class Projectile : MonoBehaviour
 
             if (character != _projectileOwner) // prevent hurting yourself
                 character.OnDamage(_damage, Element, _projectileOwner);
+
+            Destroy(gameObject);
         }
 
         //maybe spawn particles here later
-
-        Destroy(gameObject);
     }
 }
