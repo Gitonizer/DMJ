@@ -66,6 +66,8 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
 
     public void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit(); //improve this later I guess
+
         _isSelectingSpell = false;
 
         if (_dialogOpen)
