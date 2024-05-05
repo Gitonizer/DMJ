@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityRandom = UnityEngine.Random;
@@ -29,6 +28,9 @@ public class DungeonGenerator : MonoBehaviour
     public GameObject NorthEastWallPrefab;
     public GameObject SouthWestWallPrefab;
     public GameObject SouthEastWallPrefab;
+
+    [Header("Theme Materials")]
+    public Material[] WorldMats;
 
     [Header("Door prefabs")]
     public GameObject DoorPrefab;
@@ -69,6 +71,7 @@ public class DungeonGenerator : MonoBehaviour
     private bool _slicesLoaded;
 
     private List<PartitionSlice> _partitionSlices;
+    private int _selectedTheme;
 
     private void Awake()
     {
@@ -111,6 +114,8 @@ public class DungeonGenerator : MonoBehaviour
             }
             else print("data from save file is null");
         });
+
+        ApplyRandomTheme();
 
         _quest = quest;
         InitializeCells(); //create cells on map
@@ -1032,6 +1037,36 @@ public class DungeonGenerator : MonoBehaviour
                 StartCoroutine(_itemsManager.SpawnItem(randomCell.transform.position));
                 randomCell.IsOcupied = true;
             }
+        }
+    }
+
+    private void ApplyRandomTheme()
+    {
+        _selectedTheme = UnityRandom.Range(0, WorldMats.Length);
+
+        ApplyThemeToPrefab(GroundPrefab);
+        ApplyThemeToPrefab(NorthSouthPathPrefab);
+        ApplyThemeToPrefab(EastWestPathPrefab);
+        ApplyThemeToPrefab(WestWallPrefab);
+        ApplyThemeToPrefab(EastWallPrefab);
+        ApplyThemeToPrefab(NorthWallPrefab);
+        ApplyThemeToPrefab(SouthWallPrefab);
+        ApplyThemeToPrefab(NorthWestWallPrefab);
+        ApplyThemeToPrefab(NorthEastWallPrefab);
+        ApplyThemeToPrefab(SouthWestWallPrefab);
+        ApplyThemeToPrefab(SouthEastWallPrefab);
+}
+
+    private void ApplyThemeToPrefab(GameObject blockPrefab)
+    {
+        Renderer[] renderers = blockPrefab.GetComponentsInChildren<Renderer>();
+        Material[] mats;
+
+        foreach (var renderer in renderers)
+        {
+            mats = renderer.sharedMaterials;
+            mats[0] = WorldMats[_selectedTheme];
+            renderer.materials = mats;
         }
     }
 }

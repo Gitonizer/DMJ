@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 0.13
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
@@ -2966,17 +2966,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DungeonCellPrefab: {fileID: 1270222866518436106, guid: 5a7e46a3933ae004fb7eb104a4bef8b8, type: 3}
-  GroundPrefab: {fileID: 9044202281914467561, guid: a008d329fd16b584d9fb07b9747f9d0e, type: 3}
-  NorthSouthPathPrefab: {fileID: 11084781498887934, guid: 7c111fd692c517245a9739fa95c8c200, type: 3}
-  EastWestPathPrefab: {fileID: 765076187191178670, guid: ce151d5946a0eab4f9b8b526e2eb3207, type: 3}
-  WestWallPrefab: {fileID: 677845718486185401, guid: 38aa5907df2e756429a61c87d4bbbab5, type: 3}
-  EastWallPrefab: {fileID: 3576038571038357550, guid: fe741dd5cbb7f774289a51c6cb1eb3aa, type: 3}
-  NorthWallPrefab: {fileID: 3960184955386628008, guid: 61e271844e3814d428412e7926e0cb71, type: 3}
-  SouthWallPrefab: {fileID: 2826987604417312246, guid: f9f6e6b4232720d48a7559459cdff3ef, type: 3}
-  NorthWestWallPrefab: {fileID: 3552451448059103032, guid: ddc11eecb618ee941b9835467b727b56, type: 3}
-  NorthEastWallPrefab: {fileID: 6491497619586757926, guid: 3147a7f8e7687144a945c62f34bf6c1b, type: 3}
-  SouthWestWallPrefab: {fileID: 2211318372718994051, guid: 6dc3cae6923da4e4ebc8ef87615670bf, type: 3}
-  SouthEastWallPrefab: {fileID: 3132875570601309115, guid: 1f0f5fe958a022448801dabe06c0d146, type: 3}
+  GroundPrefab: {fileID: 3647577512229617348, guid: d326eafeedc877b4f98fdaf17b69ca3f, type: 3}
+  NorthSouthPathPrefab: {fileID: 8602395015137590258, guid: fcfd09db20409dc42a0d9a394b01c964, type: 3}
+  EastWestPathPrefab: {fileID: 5876161785677181862, guid: 007c8171f27d0674b9fdbaadbc0ffd65, type: 3}
+  WestWallPrefab: {fileID: 2293541090738560088, guid: c7d92d29a8ea6ab4bbd7be87cc0dbae0, type: 3}
+  EastWallPrefab: {fileID: 624125980223578583, guid: 89f77dbe20c11304c912a0a611346de9, type: 3}
+  NorthWallPrefab: {fileID: 4005337496353652932, guid: 426f35519c0efb44bab9f3427467bf80, type: 3}
+  SouthWallPrefab: {fileID: 2517237555604853670, guid: 840e8df7a75aae4448ab4ec504b789d6, type: 3}
+  NorthWestWallPrefab: {fileID: 2432174413400860020, guid: 15ba680425c936d488cf7b97fea3dcd9, type: 3}
+  NorthEastWallPrefab: {fileID: 5980680252938305835, guid: 38327e24e9156e842ae11d2cbebaff5a, type: 3}
+  SouthWestWallPrefab: {fileID: 3265851126038174737, guid: 7974ac9abe6e08d4586dc83e904bc2b6, type: 3}
+  SouthEastWallPrefab: {fileID: 3439894384139708611, guid: 0aa4e66efabbcd34c8fa7af2837161bc, type: 3}
+  WorldMats:
+  - {fileID: 2100000, guid: 152bad7748c1de143bbc198734aa3c11, type: 2}
+  - {fileID: 2100000, guid: 6f6895a9bcaee484d85320a853d21847, type: 2}
+  - {fileID: 2100000, guid: 44c16ea3376e3b04b8a7be93cef62439, type: 2}
+  - {fileID: 2100000, guid: 7fea2ef9923a12f4aafb844a7f508134, type: 2}
   DoorPrefab: {fileID: 5751268291084531274, guid: 2ae0800aed27c9b4d84d200f95d83172, type: 3}
   CharacterParent: {fileID: 1535746113}
   EnemyParent: {fileID: 962641896}
