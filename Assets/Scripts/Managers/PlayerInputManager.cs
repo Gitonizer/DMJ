@@ -20,7 +20,7 @@ public class PlayerInputManager : MonoBehaviour, IInputManager
     private const float CAMERA_SENSITIVITY = 10f;
 
     private const float CAMERA_TURN_MINY = -70f;
-    private const float CAMERA_TURN_MAXY = 50f;
+    private const float CAMERA_TURN_MAXY = 20f;
 
     public float ForwardMovement { get  { return _forwardMovement; } }
     public float SideMovement { get { return _sideMovement; } }
